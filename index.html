@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="GymTracker">
+<title>Gym Tracker</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #ffffff; --bg2: #f5f5f4; --bg3: #eeede8;
+  --text: #1a1a1a; --text2: #6b7280; --text3: #9ca3af;
+  --border: rgba(0,0,0,0.12); --border2: rgba(0,0,0,0.2);
+  --green: #1D9E75; --green-light: #E1F5EE; --green-dark: #0F6E56;
+  --red: #E24B4A; --red-light: #FCEBEB;
+  --amber: #FAC775; --amber-dark: #633806;
+  --radius: 8px; --radius-lg: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e; --bg2: #2c2c2e; --bg3: #3a3a3c;
+    --text: #f2f2f7; --text2: #aeaeb2; --text3: #636366;
+    --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+    --green-light: #0a3d2e; --green-dark: #9FE1CB;
+    --red-light: #3d1010;
+  }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+.app { max-width: 480px; margin: 0 auto; background: var(--bg3); min-height: 100vh; padding-bottom: 72px; }
+
+.header { background: var(--bg); padding: 52px 16px 12px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+.header-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.header-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.sync-status { font-size: 11px; color: var(--text2); display: flex; align-items: center; gap: 4px; }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; flex-shrink: 0; }
+.sync-dot.ok { background: var(--green); }
+.sync-dot.err { background: var(--red); }
+.sync-dot.ing { background: #EF9F27; }
+
+.tab-bar { background: var(--bg); border-bottom: 0.5px solid var(--border); display: flex; position: sticky; top: 73px; z-index: 9; }
+.tab-item { flex: 1; padding: 8px 4px 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; border: none; background: none; color: var(--text2); font-size: 10px; font-family: inherit; }
+.tab-item.active { color: var(--green); }
+.tab-icon { font-size: 20px; line-height: 1; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+.cycle-bar { display: flex; gap: 8px; padding: 12px 16px; }
+.cycle-btn { flex: 1; padding: 10px 4px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg); font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all .15s; font-family: inherit; }
+.cycle-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
+
+.section { padding: 0 16px; margin-top: 12px; }
+.section-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; }
+
+.exercise-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; margin-bottom: 8px; transition: opacity .2s; }
+.exercise-card.skipped { opacity: .4; }
+.ex-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+.ex-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.ex-muscle { font-size: 11px; color: var(--text2); margin-top: 2px; }
+.ex-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+.rec-badge { font-size: 11px; background: var(--green-light); color: var(--green-dark); border-radius: var(--radius); padding: 3px 8px; white-space: nowrap; font-weight: 500; }
+.skip-btn { font-size: 11px; color: var(--text2); background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 3px 8px; cursor: pointer; font-family: inherit; }
+.skip-btn.active { background: var(--red-light); color: var(--red); border-color: var(--red); }
+
+.sets-container { display: flex; flex-direction: column; gap: 6px; }
+.set-row { display: grid; grid-template-columns: 28px 1fr 1fr 28px; gap: 6px; align-items: center; }
+.set-num { font-size: 11px; color: var(--text2); text-align: center; font-weight: 500; }
+.set-num.key { color: var(--red); font-weight: 700; }
+.set-field { position: relative; }
+.set-field label { position: absolute; top: 4px; left: 0; right: 0; font-size: 9px; color: var(--text3); text-align: center; pointer-events: none; z-index: 1; }
+.set-input { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg2); font-size: 15px; font-weight: 600; color: var(--text); outline: none; padding: 20px 4px 4px; text-align: center; font-family: inherit; -webkit-appearance: none; appearance: none; }
+.set-input:focus { border-color: var(--green); background: var(--bg); }
+.set-input.key-input { border-color: rgba(226,75,74,0.35); }
+.set-input.key-input:focus { border-color: var(--red); }
+.set-input[type=number]::-webkit-inner-spin-button,
+.set-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+.del-btn { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text2); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; flex-shrink: 0; }
+.add-set-btn { margin-top: 6px; width: 100%; padding: 8px; border: 0.5px dashed var(--border2); border-radius: var(--radius); background: none; color: var(--text2); font-size: 12px; cursor: pointer; font-family: inherit; }
+
+.ab-section { background: var(--bg); border-radius: var(--radius-lg); padding: 10px 14px; border: 0.5px solid var(--border); }
+.ab-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
+.ab-row:last-child { border-bottom: none; }
+.ab-name { font-size: 13px; color: var(--text); }
+.ab-check { width: 24px; height: 24px; border-radius: 50%; border: 0.5px solid var(--border2); background: var(--bg2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: transparent; transition: all .15s; flex-shrink: 0; }
+.ab-check.done { background: var(--green); border-color: var(--green); color: #fff; }
+
+.hop-section { background: var(--bg); border-radius: var(--radius-lg); padding: 12px 14px; margin-top: 8px; border: 0.5px solid var(--border); }
+.hop-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.hop-row { display: flex; align-items: center; justify-content: space-between; }
+.hop-desc { font-size: 12px; color: var(--text2); }
+.hop-checks { display: flex; gap: 8px; }
+.hop-check { width: 32px; height: 32px; border-radius: 50%; border: 0.5px solid var(--border2); background: var(--bg2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; transition: all .15s; }
+.hop-check.done { background: var(--green); border-color: var(--green); color: #fff; }
+
+.memo-wrap { padding: 0 16px; margin-top: 8px; }
+.memo-input { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 10px 12px; font-size: 13px; color: var(--text); background: var(--bg); resize: none; height: 60px; font-family: inherit; }
+
+.finish-btn { display: block; margin: 14px 16px 0; width: calc(100% - 32px); padding: 15px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-lg); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.finish-btn:disabled { opacity: .5; }
+
+.toast { margin: 8px 16px 0; padding: 12px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; text-align: center; opacity: 0; transition: opacity .3s; color: #fff; background: var(--green); }
+.toast.show { opacity: 1; }
+.toast.err { background: #A32D2D; }
+
+.history-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; margin: 0 16px 10px; }
+.hist-date { font-size: 13px; font-weight: 600; color: var(--text); }
+.hist-cycle { font-size: 11px; color: var(--text2); }
+.hist-exercises { font-size: 12px; color: var(--text2); line-height: 1.9; margin-top: 6px; }
+.hist-highlight { color: var(--green-dark); font-weight: 600; }
+.pr-badge { display: inline-block; font-size: 10px; background: var(--amber); color: var(--amber-dark); border-radius: 4px; padding: 1px 5px; margin-left: 4px; font-weight: 600; }
+.sheets-badge { display: inline-block; font-size: 10px; background: var(--green-light); color: var(--green-dark); border-radius: 4px; padding: 1px 5px; margin-left: 4px; }
+.skip-tag { font-size: 10px; color: var(--text3); background: var(--bg2); border-radius: 4px; padding: 1px 5px; }
+.empty-state { text-align: center; padding: 60px 16px; color: var(--text2); font-size: 14px; }
+
+.chart-section { padding: 0 16px; margin-top: 16px; }
+.chart-select { width: 100%; padding: 10px 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text); font-size: 13px; margin-bottom: 12px; font-family: inherit; -webkit-appearance: none; }
+.chart-wrap { position: relative; width: 100%; height: 220px; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 16px; margin-top: 12px; }
+.stat-card { background: var(--bg); border-radius: var(--radius); padding: 12px; border: 0.5px solid var(--border); }
+.stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--text); }
+.stat-unit { font-size: 12px; color: var(--text2); font-weight: 400; }
+
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--bg); border-top: 0.5px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 20; }
+.nav-item { flex: 1; padding: 8px 4px 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; border: none; background: none; color: var(--text2); font-size: 10px; font-family: inherit; }
+.nav-item.active { color: var(--green); }
+.nav-icon { font-size: 22px; line-height: 1; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="header-title">Gym Tracker</div>
+      <div class="header-sub" id="headerDate"></div>
+    </div>
+    <div class="sync-status"><span class="sync-dot" id="syncDot"></span><span id="syncText">未同期</span></div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-item active" onclick="switchTab('record',this)"><span class="tab-icon">＋</span>記録</button>
+    <button class="tab-item" onclick="switchTab('history',this)"><span class="tab-icon">☰</span>履歴</button>
+    <button class="tab-item" onclick="switchTab('graph',this)"><span class="tab-icon">↗</span>グラフ</button>
+  </div>
+
+  <!-- 記録 -->
+  <div id="screenRecord" class="screen active">
+    <div class="cycle-bar">
+      <button class="cycle-btn active" onclick="setCycle('A')">全身 A</button>
+      <button class="cycle-btn" onclick="setCycle('B')">全身 B</button>
+      <button class="cycle-btn" onclick="setCycle('C')">全身 C</button>
+    </div>
+    <div id="exerciseList" class="section"></div>
+    <div class="section">
+      <div class="section-label">腹筋・コア</div>
+      <div class="ab-section" id="abSection"></div>
+    </div>
+    <div class="section">
+      <div class="hop-section">
+        <div class="hop-title">アンクル・ホップ（跳躍変換）</div>
+        <div class="hop-row">
+          <div class="hop-desc">30回 × 2セット</div>
+          <div class="hop-checks">
+            <div class="hop-check" onclick="toggleHop(0)" id="hop0">✓</div>
+            <div class="hop-check" onclick="toggleHop(1)" id="hop1">✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="memo-wrap"><textarea class="memo-input" id="memoInput" placeholder="メモ（体調・気づきなど）"></textarea></div>
+    <button class="finish-btn" id="finishBtn" onclick="finishSession()">記録を保存してスプレッドシートに送信</button>
+    <div class="toast" id="toast"></div>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- 履歴 -->
+  <div id="screenHistory" class="screen">
+    <div style="padding:12px 16px 4px"><div class="section-label">トレーニング履歴</div></div>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- グラフ -->
+  <div id="screenGraph" class="screen">
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="chart-section">
+      <select class="chart-select" id="exerciseSelect" onchange="renderWeightChart()"></select>
+      <div class="chart-wrap"><canvas id="weightChart"></canvas></div>
+    </div>
+    <div class="chart-section" style="margin-top:16px">
+      <div class="section-label">ボリューム推移</div>
+      <div class="chart-wrap"><canvas id="volumeChart"></canvas></div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzA0DnAzJ2cOibIil0pPJkUTWy5PmEQ3cdWgzfvDRrvlv415_cF_hRerlP89SpeeRHI3Q/exec';
+
+const CYCLES = {
+  A: [
+    { id:'deadlift',     name:'デッドリフト',              muscle:'背中',       defaultSets:[10,5,10], step:2.5 },
+    { id:'inc_db_press', name:'インクラインDB プレス',      muscle:'胸',         defaultSets:[10,5,10], step:2.0 },
+    { id:'leg_press',    name:'レッグプレス',               muscle:'脚',         defaultSets:[10,5,10], step:5.0 },
+    { id:'side_raise',   name:'サイドレイズ',               muscle:'肩',         defaultSets:[15,10],   step:1.0 },
+    { id:'cable_curl',   name:'ケーブルカール',             muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5 },
+    { id:'pressdown',    name:'プレスダウン',               muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5 },
+  ],
+  B: [
+    { id:'squat',        name:'バックスクワット',           muscle:'脚',         defaultSets:[10,5,10], step:2.5 },
+    { id:'ohp',          name:'オーバーヘッドプレス',       muscle:'肩',         defaultSets:[10,5,10], step:2.5 },
+    { id:'chinup',       name:'チンニング',                 muscle:'背中',       defaultSets:[10,5,10], step:2.5 },
+    { id:'inc_db_fly',   name:'インクラインDB フライ',      muscle:'胸',         defaultSets:[10,5,10], step:2.0 },
+    { id:'bb_curl',      name:'バーベルカール',             muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5 },
+    { id:'narrow_bench', name:'ナローベンチプレス',         muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5 },
+  ],
+  C: [
+    { id:'bench',        name:'ベンチプレス',               muscle:'胸',         defaultSets:[10,5,10], step:2.5 },
+    { id:'bulgarian',    name:'ブルガリアンスクワット',     muscle:'脚',         defaultSets:[10,5,10], step:2.5 },
+    { id:'db_row',       name:'ダンベルロウ',               muscle:'背中',       defaultSets:[10,5,10], step:2.5 },
+    { id:'rear_delt',    name:'リアデルトフライ（マシン）', muscle:'肩',         defaultSets:[15,10],   step:2.5 },
+    { id:'inc_db_curl',  name:'インクラインDB カール',      muscle:'腕（二頭）', defaultSets:[10,5,10], step:1.0 },
+    { id:'tricep_ext',   name:'トライセプスエクステンション', muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5 },
+  ],
+};
+
+const AB_MENU = ['レッグレイズ','ロシアンツイスト'];
+let currentCycle = 'A';
+let sessions = [];
+let abDone = {};
+let hopDone = [false, false];
+let skipped = {};
+let setData = {};
+let wChart = null, vChart = null;
+
+function loadData() {
+  try { sessions = JSON.parse(localStorage.getItem('gym_v3') || '[]'); } catch(e) { sessions = []; }
+}
+function saveLocal() { localStorage.setItem('gym_v3', JSON.stringify(sessions)); }
+
+function getRecommended(id, cycle, step) {
+  const prev = [...sessions].reverse().find(s => s.cycle===cycle && !s.skipped?.[id] && s.sets?.[id]);
+  if (!prev) return null;
+  const sets = prev.sets[id];
+  const ki = sets.length >= 3 ? 1 : 0;
+  const kw = sets[ki]?.weight;
+  return kw != null ? kw + step : null;
+}
+
+function getLastSets(id, cycle) {
+  const prev = [...sessions].reverse().find(s => s.cycle===cycle && s.sets?.[id]);
+  return prev?.sets?.[id] || null;
+}
+
+function setCycle(c) {
+  currentCycle = c;
+  document.querySelectorAll('.cycle-btn').forEach((b,i) => b.classList.toggle('active', ['A','B','C'][i]===c));
+  buildSetData();
+  renderExercises();
+}
+
+function buildSetData() {
+  skipped = {}; setData = {};
+  CYCLES[currentCycle].forEach(ex => {
+    const last = getLastSets(ex.id, currentCycle);
+    setData[ex.id] = last ? last.map(s => ({ reps: s.reps, weight: null })) : ex.defaultSets.map(r => ({ reps: r, weight: null }));
+  });
+}
+
+function toggleSkip(id) {
+  skipped[id] = !skipped[id];
+  document.getElementById('card_'+id).classList.toggle('skipped', skipped[id]);
+  const btn = document.getElementById('skip_'+id);
+  btn.classList.toggle('active', skipped[id]);
+  btn.textContent = skipped[id] ? 'スキップ中' : 'スキップ';
+}
+
+function syncInputs(id) {
+  setData[id].forEach((s, i) => {
+    const w = parseFloat(document.getElementById('w_'+id+'_'+i)?.value);
+    const r = parseInt(document.getElementById('r_'+id+'_'+i)?.value);
+    if (!isNaN(w)) s.weight = w;
+    if (!isNaN(r)) s.reps = r;
+  });
+}
+
+function addSet(id) {
+  syncInputs(id);
+  setData[id].push({ reps: 10, weight: null });
+  document.getElementById('sets_'+id).innerHTML = buildSetsHTML(CYCLES[currentCycle].find(e=>e.id===id));
+}
+
+function removeSet(id, idx) {
+  syncInputs(id);
+  if (setData[id].length <= 1) return;
+  setData[id].splice(idx, 1);
+  document.getElementById('sets_'+id).innerHTML = buildSetsHTML(CYCLES[currentCycle].find(e=>e.id===id));
+}
+
+function getPlaceholderW(id, idx) {
+  const last = getLastSets(id, currentCycle);
+  if (last && last[idx] && last[idx].weight != null) return String(last[idx].weight);
+  return '';
+}
+
+function buildSetsHTML(ex) {
+  const sets = setData[ex.id];
+  const isDefault3 = ex.defaultSets.length >= 3;
+  let html = '<div class="sets-container">';
+  sets.forEach((s, i) => {
+    const isKey = isDefault3 && sets.length >= 3 && i === 1;
+    const ph = getPlaceholderW(ex.id, i);
+    html += `<div class="set-row">
+      <div class="set-num ${isKey?'key':''}">${isKey?'★':(i+1)}</div>
+      <div class="set-field">
+        <label>kg</label>
+        <input class="set-input ${isKey?'key-input':''}" type="number" inputmode="decimal"
+          id="w_${ex.id}_${i}" value="${s.weight!=null?s.weight:''}" placeholder="${ph}" />
+      </div>
+      <div class="set-field">
+        <label>rep</label>
+        <input class="set-input" type="number" inputmode="numeric"
+          id="r_${ex.id}_${i}" value="${s.reps}" />
+      </div>
+      <button class="del-btn" onclick="removeSet('${ex.id}',${i})">−</button>
+    </div>`;
+  });
+  html += `</div><button class="add-set-btn" onclick="addSet('${ex.id}')">＋ セットを追加</button>`;
+  return html;
+}
+
+function renderExercises() {
+  const container = document.getElementById('exerciseList');
+  container.innerHTML = '';
+  CYCLES[currentCycle].forEach(ex => {
+    const rec = getRecommended(ex.id, currentCycle, ex.step);
+    const recText = rec != null ? `目標: ${rec}kg` : '初回';
+    const isSkip = skipped[ex.id] || false;
+    const div = document.createElement('div');
+    div.className = 'exercise-card' + (isSkip ? ' skipped' : '');
+    div.id = 'card_' + ex.id;
+    div.innerHTML = `
+      <div class="ex-header">
+        <div><div class="ex-name">${ex.name}</div><div class="ex-muscle">${ex.muscle}</div></div>
+        <div class="ex-header-right">
+          <div class="rec-badge">${recText}</div>
+          <button class="skip-btn ${isSkip?'active':''}" id="skip_${ex.id}" onclick="toggleSkip('${ex.id}')">${isSkip?'スキップ中':'スキップ'}</button>
+        </div>
+      </div>
+      <div id="sets_${ex.id}">${buildSetsHTML(ex)}</div>`;
+    container.appendChild(div);
+  });
+  abDone = {};
+  document.getElementById('abSection').innerHTML = AB_MENU.map(n =>
+    `<div class="ab-row"><span class="ab-name">${n}</span><div class="ab-check" onclick="toggleAb('${n}',this)">✓</div></div>`
+  ).join('');
+  hopDone = [false, false];
+  document.getElementById('hop0').className = 'hop-check';
+  document.getElementById('hop1').className = 'hop-check';
+}
+
+function toggleAb(name, el) { abDone[name]=!abDone[name]; el.classList.toggle('done',abDone[name]); }
+function toggleHop(i) { hopDone[i]=!hopDone[i]; document.getElementById('hop'+i).classList.toggle('done',hopDone[i]); }
+
+async function finishSession() {
+  const exs = CYCLES[currentCycle];
+  const savedSets = {};
+  let hasAny = false;
+  exs.forEach(ex => {
+    if (skipped[ex.id]) return;
+    syncInputs(ex.id);
+    if (setData[ex.id].some(s => s.weight != null)) hasAny = true;
+    savedSets[ex.id] = setData[ex.id].map(s => ({ reps: s.reps, weight: s.weight }));
+  });
+  if (!hasAny) { showToast('重量を1つ以上入力してください', true); return; }
+  const memo = document.getElementById('memoInput').value;
+  const session = { id:Date.now(), date:new Date().toISOString(), cycle:currentCycle, sets:savedSets, skipped:{...skipped}, ab:Object.keys(abDone).filter(k=>abDone[k]), hop:hopDone.filter(Boolean).length, memo, synced:false };
+  sessions.push(session);
+  saveLocal();
+  document.getElementById('memoInput').value = '';
+  buildSetData();
+  renderExercises();
+  await syncToSheets(session);
+}
+
+async function syncToSheets(session) {
+  document.getElementById('finishBtn').disabled = true;
+  setSyncStatus('ing','送信中...');
+  const rows = CYCLES[session.cycle].map(ex => {
+    if (session.skipped?.[ex.id]) return { name:ex.name, muscle:ex.muscle, skipped:true };
+    const sets = session.sets[ex.id]||[];
+    const isD3 = ex.defaultSets.length >= 3;
+    const ki = isD3 && sets.length>=3 ? 1 : 0;
+    const vol = sets.reduce((a,s) => a+(s.weight||0)*s.reps, 0);
+    return { name:ex.name, muscle:ex.muscle, skipped:false, sets:sets.map(s=>`${s.weight||'?'}kg×${s.reps}rep`).join(' / '), keyWeight:sets[ki]?.weight||null, volume:Math.round(vol) };
+  });
+  try {
+    await fetch(GAS_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ date:session.date, cycle:session.cycle, rows, ab:session.ab, hop:session.hop, memo:session.memo }) });
+    session.synced = true; saveLocal();
+    setSyncStatus('ok','シート同期済み');
+    showToast('保存 & スプレッドシートに送信しました！');
+  } catch(e) {
+    setSyncStatus('err','送信失敗');
+    showToast('ローカルに保存しました（通信エラー）', true);
+  }
+  document.getElementById('finishBtn').disabled = false;
+}
+
+function setSyncStatus(s,t) {
+  document.getElementById('syncDot').className='sync-dot '+s;
+  document.getElementById('syncText').textContent=t;
+}
+
+function showToast(msg, isErr=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr?' err':'');
+  setTimeout(()=>t.className='toast'+(isErr?' err':''), 2600);
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyList');
+  if (!sessions.length) { container.innerHTML='<div class="empty-state">まだ記録がありません</div>'; return; }
+  container.innerHTML = [...sessions].reverse().slice(0,30).map(s => {
+    const d = new Date(s.date);
+    const dateStr = `${d.getMonth()+1}/${d.getDate()} (${['日','月','火','水','木','金','土'][d.getDay()]})`;
+    const exLines = CYCLES[s.cycle].map(ex => {
+      if (s.skipped?.[ex.id]) return `${ex.name} <span class="skip-tag">スキップ</span>`;
+      const sets = s.sets?.[ex.id];
+      if (!sets || sets.every(st=>st.weight==null)) return null;
+      const isD3 = ex.defaultSets.length >= 3;
+      const ki = isD3 && sets.length>=3 ? 1 : 0;
+      const kw = sets[ki]?.weight;
+      const detail = sets.map(st=>`${st.weight||'?'}×${st.reps}`).join(' / ');
+      return `${ex.name} <span class="hist-highlight">${kw||'?'}kg</span> <span style="font-size:10px;color:var(--text3)">(${detail})</span>`;
+    }).filter(Boolean).join('<br>');
+    const prHtml = checkPR(s) ? '<span class="pr-badge">PR</span>' : '';
+    const syncHtml = s.synced ? '<span class="sheets-badge">シート済</span>' : '';
+    return `<div class="history-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div><div class="hist-date">${dateStr}${prHtml}${syncHtml}</div><div class="hist-cycle">全身${s.cycle}</div></div>
+        <div style="font-size:11px;color:var(--text2)">ホップ${s.hop||0}/2</div>
+      </div>
+      <div class="hist-exercises">${exLines}</div>
+      ${s.memo?`<div style="margin-top:6px;font-size:11px;color:var(--text2);font-style:italic">"${s.memo}"</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function checkPR(session) {
+  for (const ex of CYCLES[session.cycle]) {
+    if (session.skipped?.[ex.id]) continue;
+    const sets = session.sets?.[ex.id]; if (!sets) continue;
+    const isD3 = ex.defaultSets.length >= 3;
+    const ki = isD3 && sets.length>=3 ? 1 : 0;
+    const kw = sets[ki]?.weight; if (kw==null) continue;
+    const maxPrev = Math.max(0, ...sessions.filter(s=>s!==session&&s.cycle===session.cycle&&!s.skipped?.[ex.id]).map(s=>{
+      const ps=s.sets?.[ex.id]; if(!ps) return 0;
+      const pki=isD3&&ps.length>=3?1:0; return ps[pki]?.weight||0;
+    }));
+    if (kw > maxPrev) return true;
+  }
+  return false;
+}
+
+function renderGraph() {
+  const allEx = [...CYCLES.A,...CYCLES.B,...CYCLES.C];
+  document.getElementById('exerciseSelect').innerHTML = allEx.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  renderWeightChart(); renderVolumeChart(); renderStats();
+}
+
+function renderStats() {
+  const getMax = (id) => Math.max(0, ...sessions.map(s=>{ const sets=s.sets?.[id]; if(!sets) return 0; const ki=sets.length>=3?1:0; return sets[ki]?.weight||0; }));
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-label">総セッション</div><div class="stat-value">${sessions.length}<span class="stat-unit"> 回</span></div></div>
+    <div class="stat-card"><div class="stat-label">DL MAX</div><div class="stat-value">${getMax('deadlift')||'--'}<span class="stat-unit"> kg</span></div></div>
+    <div class="stat-card"><div class="stat-label">BP MAX</div><div class="stat-value">${getMax('bench')||'--'}<span class="stat-unit"> kg</span></div></div>
+    <div class="stat-card"><div class="stat-label">SQ MAX</div><div class="stat-value">${getMax('squat')||'--'}<span class="stat-unit"> kg</span></div></div>`;
+}
+
+function getChartColors() {
+  const dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
+  return { grid: dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)', tick: dark?'#636366':'#9ca3af' };
+}
+
+function renderWeightChart() {
+  const exId = document.getElementById('exerciseSelect').value;
+  const allEx = [...CYCLES.A,...CYCLES.B,...CYCLES.C];
+  const ex = allEx.find(e=>e.id===exId);
+  const rel = sessions.filter(s=>!s.skipped?.[exId]&&s.sets?.[exId]?.some(st=>st.weight!=null));
+  const labels = rel.map(s=>{ const d=new Date(s.date); return `${d.getMonth()+1}/${d.getDate()}`; });
+  const isD3 = ex.defaultSets.length >= 3;
+  const keyData = rel.map(s=>{ const sets=s.sets[exId]; const ki=isD3&&sets.length>=3?1:0; return sets[ki]?.weight||null; });
+  const {grid,tick} = getChartColors();
+  if (wChart) wChart.destroy();
+  wChart = new Chart(document.getElementById('weightChart'), {
+    type:'line', data:{ labels, datasets:[{ label:'キー重量', data:keyData, borderColor:'#1D9E75', backgroundColor:'transparent', borderWidth:2.5, pointRadius:4, tension:0.3 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:grid},ticks:{color:tick,font:{size:10}}}, y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v+'kg'}} } }
+  });
+}
+
+function renderVolumeChart() {
+  const last12 = sessions.slice(-12);
+  const labels = last12.map(s=>{ const d=new Date(s.date); return `${d.getMonth()+1}/${d.getDate()}(${s.cycle})`; });
+  const vols = last12.map(s=>{ let v=0; CYCLES[s.cycle].forEach(ex=>{ if(s.skipped?.[ex.id]) return; (s.sets?.[ex.id]||[]).forEach(st=>{ if(st.weight) v+=st.weight*st.reps; }); }); return Math.round(v); });
+  const {grid,tick} = getChartColors();
+  if (vChart) vChart.destroy();
+  vChart = new Chart(document.getElementById('volumeChart'), {
+    type:'bar', data:{ labels, datasets:[{ label:'ボリューム', data:vols, backgroundColor:'#5DCAA5', borderRadius:4 }] },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:grid},ticks:{color:tick,font:{size:9},maxRotation:45,autoSkip:false}}, y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v.toLocaleString()+'kg'}} } }
+  });
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['record','history','graph'].forEach(s=>{
+    document.getElementById('screen'+s.charAt(0).toUpperCase()+s.slice(1)).classList.toggle('active',s===tab);
+  });
+  if (tab==='history') renderHistory();
+  if (tab==='graph') renderGraph();
+}
+
+function init() {
+  loadData();
+  const today = new Date();
+  document.getElementById('headerDate').textContent = `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()} (${['日','月','火','水','木','金','土'][today.getDay()]})`;
+  const last = sessions[sessions.length-1];
+  if (last) {
+    const nm={A:'B',B:'C',C:'A'}; currentCycle=nm[last.cycle]||'A';
+    document.querySelectorAll('.cycle-btn').forEach((b,i)=>b.classList.toggle('active',['A','B','C'][i]===currentCycle));
+  }
+  buildSetData(); renderExercises();
+  const synced = sessions.filter(s=>s.synced).length;
+  if (synced > 0) setSyncStatus('ok', `${synced}件同期済み`);
+}
+
+init();
+</script>
+</body>
+</html>
