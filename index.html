@@ -29,7 +29,6 @@
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
 .app { max-width: 480px; margin: 0 auto; background: var(--bg3); min-height: 100vh; padding-bottom: 72px; }
-
 .header { background: var(--bg); padding: 52px 16px 12px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
 .header-title { font-size: 15px; font-weight: 600; color: var(--text); }
 .header-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
@@ -38,22 +37,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .sync-dot.ok { background: var(--green); }
 .sync-dot.err { background: var(--red); }
 .sync-dot.ing { background: #EF9F27; }
-
 .tab-bar { background: var(--bg); border-bottom: 0.5px solid var(--border); display: flex; position: sticky; top: 73px; z-index: 9; }
 .tab-item { flex: 1; padding: 8px 4px 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; border: none; background: none; color: var(--text2); font-size: 10px; font-family: inherit; }
 .tab-item.active { color: var(--green); }
 .tab-icon { font-size: 20px; line-height: 1; }
-
 .screen { display: none; }
 .screen.active { display: block; }
-
 .cycle-bar { display: flex; gap: 8px; padding: 12px 16px; }
 .cycle-btn { flex: 1; padding: 10px 4px; border-radius: var(--radius); border: 0.5px solid var(--border2); background: var(--bg); font-size: 13px; font-weight: 600; color: var(--text2); cursor: pointer; transition: all .15s; font-family: inherit; }
 .cycle-btn.active { background: var(--green); border-color: var(--green); color: #fff; }
-
 .section { padding: 0 16px; margin-top: 12px; }
 .section-label { font-size: 11px; font-weight: 600; color: var(--text2); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 8px; }
-
 .exercise-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; margin-bottom: 8px; transition: opacity .2s; }
 .exercise-card.skipped { opacity: .4; }
 .ex-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
@@ -63,7 +57,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .rec-badge { font-size: 11px; background: var(--green-light); color: var(--green-dark); border-radius: var(--radius); padding: 3px 8px; white-space: nowrap; font-weight: 500; }
 .skip-btn { font-size: 11px; color: var(--text2); background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 3px 8px; cursor: pointer; font-family: inherit; }
 .skip-btn.active { background: var(--red-light); color: var(--red); border-color: var(--red); }
-
 .sets-container { display: flex; flex-direction: column; gap: 6px; }
 .set-row { display: grid; grid-template-columns: 28px 1fr 1fr 28px; gap: 6px; align-items: center; }
 .set-num { font-size: 11px; color: var(--text2); text-align: center; font-weight: 500; }
@@ -78,14 +71,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .set-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 .del-btn { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text2); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; flex-shrink: 0; }
 .add-set-btn { margin-top: 6px; width: 100%; padding: 8px; border: 0.5px dashed var(--border2); border-radius: var(--radius); background: none; color: var(--text2); font-size: 12px; cursor: pointer; font-family: inherit; }
-
 .ab-section { background: var(--bg); border-radius: var(--radius-lg); padding: 10px 14px; border: 0.5px solid var(--border); }
 .ab-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
 .ab-row:last-child { border-bottom: none; }
 .ab-name { font-size: 13px; color: var(--text); }
 .ab-check { width: 24px; height: 24px; border-radius: 50%; border: 0.5px solid var(--border2); background: var(--bg2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: transparent; transition: all .15s; flex-shrink: 0; }
 .ab-check.done { background: var(--green); border-color: var(--green); color: #fff; }
-
 .hop-section { background: var(--bg); border-radius: var(--radius-lg); padding: 12px 14px; margin-top: 8px; border: 0.5px solid var(--border); }
 .hop-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
 .hop-row { display: flex; align-items: center; justify-content: space-between; }
@@ -93,17 +84,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .hop-checks { display: flex; gap: 8px; }
 .hop-check { width: 32px; height: 32px; border-radius: 50%; border: 0.5px solid var(--border2); background: var(--bg2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: transparent; transition: all .15s; }
 .hop-check.done { background: var(--green); border-color: var(--green); color: #fff; }
-
 .memo-wrap { padding: 0 16px; margin-top: 8px; }
 .memo-input { width: 100%; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 10px 12px; font-size: 13px; color: var(--text); background: var(--bg); resize: none; height: 60px; font-family: inherit; }
-
 .finish-btn { display: block; margin: 14px 16px 0; width: calc(100% - 32px); padding: 15px; background: var(--green); color: #fff; border: none; border-radius: var(--radius-lg); font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
 .finish-btn:disabled { opacity: .5; }
-
 .toast { margin: 8px 16px 0; padding: 12px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 500; text-align: center; opacity: 0; transition: opacity .3s; color: #fff; background: var(--green); }
 .toast.show { opacity: 1; }
 .toast.err { background: #A32D2D; }
-
 .history-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; margin: 0 16px 10px; }
 .hist-date { font-size: 13px; font-weight: 600; color: var(--text); }
 .hist-cycle { font-size: 11px; color: var(--text2); }
@@ -113,7 +100,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .sheets-badge { display: inline-block; font-size: 10px; background: var(--green-light); color: var(--green-dark); border-radius: 4px; padding: 1px 5px; margin-left: 4px; }
 .skip-tag { font-size: 10px; color: var(--text3); background: var(--bg2); border-radius: 4px; padding: 1px 5px; }
 .empty-state { text-align: center; padding: 60px 16px; color: var(--text2); font-size: 14px; }
-
 .chart-section { padding: 0 16px; margin-top: 16px; }
 .chart-select { width: 100%; padding: 10px 12px; border: 0.5px solid var(--border2); border-radius: var(--radius); background: var(--bg); color: var(--text); font-size: 13px; margin-bottom: 12px; font-family: inherit; -webkit-appearance: none; }
 .chart-wrap { position: relative; width: 100%; height: 220px; }
@@ -122,11 +108,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
 .stat-value { font-size: 22px; font-weight: 700; color: var(--text); }
 .stat-unit { font-size: 12px; color: var(--text2); font-weight: 400; }
-
-.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--bg); border-top: 0.5px solid var(--border); display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 20; }
-.nav-item { flex: 1; padding: 8px 4px 10px; display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; border: none; background: none; color: var(--text2); font-size: 10px; font-family: inherit; }
-.nav-item.active { color: var(--green); }
-.nav-icon { font-size: 22px; line-height: 1; }
 </style>
 </head>
 <body>
@@ -144,7 +125,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
     <button class="tab-item" onclick="switchTab('graph',this)"><span class="tab-icon">↗</span>グラフ</button>
   </div>
 
-  <!-- 記録 -->
   <div id="screenRecord" class="screen active">
     <div class="cycle-bar">
       <button class="cycle-btn active" onclick="setCycle('A')">全身 A</button>
@@ -174,13 +154,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
     <div style="height:16px"></div>
   </div>
 
-  <!-- 履歴 -->
   <div id="screenHistory" class="screen">
     <div style="padding:12px 16px 4px"><div class="section-label">トレーニング履歴</div></div>
     <div id="historyList"></div>
   </div>
 
-  <!-- グラフ -->
   <div id="screenGraph" class="screen">
     <div class="stats-grid" id="statsGrid"></div>
     <div class="chart-section">
@@ -201,28 +179,28 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzA0DnAzJ2cOibIil0pPJkU
 
 const CYCLES = {
   A: [
-    { id:'deadlift',     name:'デッドリフト',              muscle:'背中',       defaultSets:[10,5,10], step:2.5 },
-    { id:'inc_db_press', name:'インクラインDB プレス',      muscle:'胸',         defaultSets:[10,5,10], step:2.0 },
-    { id:'leg_press',    name:'レッグプレス',               muscle:'脚',         defaultSets:[10,5,10], step:5.0 },
-    { id:'side_raise',   name:'サイドレイズ',               muscle:'肩',         defaultSets:[15,10],   step:1.0 },
-    { id:'cable_curl',   name:'ケーブルカール',             muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5 },
-    { id:'pressdown',    name:'プレスダウン',               muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5 },
+    { id:'deadlift',     name:'デッドリフト',                 muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'inc_db_press', name:'インクラインDB プレス',         muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false },
+    { id:'leg_press',    name:'レッグプレス',                  muscle:'脚',         defaultSets:[10,5,10], step:5.0,  is2set:false },
+    { id:'side_raise',   name:'サイドレイズ',                  muscle:'肩',         defaultSets:[15,10],   step:1.0,  is2set:true  },
+    { id:'cable_curl',   name:'ケーブルカール',                muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'pressdown',    name:'プレスダウン',                  muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
   ],
   B: [
-    { id:'squat',        name:'バックスクワット',           muscle:'脚',         defaultSets:[10,5,10], step:2.5 },
-    { id:'ohp',          name:'オーバーヘッドプレス',       muscle:'肩',         defaultSets:[10,5,10], step:2.5 },
-    { id:'chinup',       name:'チンニング',                 muscle:'背中',       defaultSets:[10,5,10], step:2.5 },
-    { id:'inc_db_fly',   name:'インクラインDB フライ',      muscle:'胸',         defaultSets:[10,5,10], step:2.0 },
-    { id:'bb_curl',      name:'バーベルカール',             muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5 },
-    { id:'narrow_bench', name:'ナローベンチプレス',         muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5 },
+    { id:'squat',        name:'バックスクワット',              muscle:'脚',         defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'ohp',          name:'オーバーヘッドプレス',          muscle:'肩',         defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'chinup',       name:'チンニング',                    muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'inc_db_fly',   name:'インクラインDB フライ',         muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false },
+    { id:'bb_curl',      name:'バーベルカール',                muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'narrow_bench', name:'ナローベンチプレス',            muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
   ],
   C: [
-    { id:'bench',        name:'ベンチプレス',               muscle:'胸',         defaultSets:[10,5,10], step:2.5 },
-    { id:'bulgarian',    name:'ブルガリアンスクワット',     muscle:'脚',         defaultSets:[10,5,10], step:2.5 },
-    { id:'db_row',       name:'ダンベルロウ',               muscle:'背中',       defaultSets:[10,5,10], step:2.5 },
-    { id:'rear_delt',    name:'リアデルトフライ（マシン）', muscle:'肩',         defaultSets:[15,10],   step:2.5 },
-    { id:'inc_db_curl',  name:'インクラインDB カール',      muscle:'腕（二頭）', defaultSets:[10,5,10], step:1.0 },
-    { id:'tricep_ext',   name:'トライセプスエクステンション', muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5 },
+    { id:'bench',        name:'ベンチプレス',                  muscle:'胸',         defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'bulgarian',    name:'ブルガリアンスクワット',        muscle:'脚',         defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'db_row',       name:'ダンベルロウ',                  muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'rear_delt',    name:'リアデルトフライ（マシン）',    muscle:'肩',         defaultSets:[15,10],   step:2.5,  is2set:true  },
+    { id:'inc_db_curl',  name:'インクラインDB カール',         muscle:'腕（二頭）', defaultSets:[10,5,10], step:1.0,  is2set:false },
+    { id:'tricep_ext',   name:'トライセプスエクステンション',  muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
   ],
 };
 
@@ -240,17 +218,27 @@ function loadData() {
 }
 function saveLocal() { localStorage.setItem('gym_v3', JSON.stringify(sessions)); }
 
-function getRecommended(id, cycle, step) {
-  const prev = [...sessions].reverse().find(s => s.cycle===cycle && !s.skipped?.[id] && s.sets?.[id]);
+function getRecommended(ex) {
+  const prev = [...sessions].reverse().find(s => s.cycle===currentCycle && !s.skipped?.[ex.id] && s.sets?.[ex.id]);
   if (!prev) return null;
-  const sets = prev.sets[id];
-  const ki = sets.length >= 3 ? 1 : 0;
-  const kw = sets[ki]?.weight;
-  return kw != null ? kw + step : null;
+  const sets = prev.sets[ex.id];
+  if (ex.is2set) {
+    const w0 = sets[0]?.weight;
+    const w1 = sets[1]?.weight;
+    if (w0 == null && w1 == null) return null;
+    const next0 = w0 != null ? w0 + ex.step : null;
+    const next1 = w1 != null ? w1 + ex.step : null;
+    if (next0 != null && next1 != null) return `${next0} / ${next1}kg`;
+    return `${next0 || next1}kg`;
+  } else {
+    const ki = sets.length >= 3 ? 1 : 0;
+    const kw = sets[ki]?.weight;
+    return kw != null ? `${kw + ex.step}kg` : null;
+  }
 }
 
-function getLastSets(id, cycle) {
-  const prev = [...sessions].reverse().find(s => s.cycle===cycle && s.sets?.[id]);
+function getLastSets(id) {
+  const prev = [...sessions].reverse().find(s => s.cycle===currentCycle && s.sets?.[id]);
   return prev?.sets?.[id] || null;
 }
 
@@ -264,8 +252,10 @@ function setCycle(c) {
 function buildSetData() {
   skipped = {}; setData = {};
   CYCLES[currentCycle].forEach(ex => {
-    const last = getLastSets(ex.id, currentCycle);
-    setData[ex.id] = last ? last.map(s => ({ reps: s.reps, weight: null })) : ex.defaultSets.map(r => ({ reps: r, weight: null }));
+    const last = getLastSets(ex.id);
+    setData[ex.id] = last
+      ? last.map(s => ({ reps: s.reps, weight: null }))
+      : ex.defaultSets.map(r => ({ reps: r, weight: null }));
   });
 }
 
@@ -281,7 +271,7 @@ function syncInputs(id) {
   setData[id].forEach((s, i) => {
     const w = parseFloat(document.getElementById('w_'+id+'_'+i)?.value);
     const r = parseInt(document.getElementById('r_'+id+'_'+i)?.value);
-    if (!isNaN(w)) s.weight = w;
+    if (!isNaN(w)) s.weight = w; else s.weight = null;
     if (!isNaN(r)) s.reps = r;
   });
 }
@@ -300,20 +290,20 @@ function removeSet(id, idx) {
 }
 
 function getPlaceholderW(id, idx) {
-  const last = getLastSets(id, currentCycle);
+  const last = getLastSets(id);
   if (last && last[idx] && last[idx].weight != null) return String(last[idx].weight);
   return '';
 }
 
 function buildSetsHTML(ex) {
   const sets = setData[ex.id];
-  const isDefault3 = ex.defaultSets.length >= 3;
   let html = '<div class="sets-container">';
   sets.forEach((s, i) => {
-    const isKey = isDefault3 && sets.length >= 3 && i === 1;
+    // 3セット以上ある種目の2番目(i===1)が★キー
+    const isKey = !ex.is2set && sets.length >= 3 && i === 1;
     const ph = getPlaceholderW(ex.id, i);
     html += `<div class="set-row">
-      <div class="set-num ${isKey?'key':''}">${isKey?'★':(i+1)}</div>
+      <div class="set-num ${isKey?'key':''}">${isKey ? '★' : (i+1)}</div>
       <div class="set-field">
         <label>kg</label>
         <input class="set-input ${isKey?'key-input':''}" type="number" inputmode="decimal"
@@ -335,8 +325,8 @@ function renderExercises() {
   const container = document.getElementById('exerciseList');
   container.innerHTML = '';
   CYCLES[currentCycle].forEach(ex => {
-    const rec = getRecommended(ex.id, currentCycle, ex.step);
-    const recText = rec != null ? `目標: ${rec}kg` : '初回';
+    const rec = getRecommended(ex);
+    const recText = rec != null ? `目標: ${rec}` : '初回';
     const isSkip = skipped[ex.id] || false;
     const div = document.createElement('div');
     div.className = 'exercise-card' + (isSkip ? ' skipped' : '');
@@ -376,7 +366,12 @@ async function finishSession() {
   });
   if (!hasAny) { showToast('重量を1つ以上入力してください', true); return; }
   const memo = document.getElementById('memoInput').value;
-  const session = { id:Date.now(), date:new Date().toISOString(), cycle:currentCycle, sets:savedSets, skipped:{...skipped}, ab:Object.keys(abDone).filter(k=>abDone[k]), hop:hopDone.filter(Boolean).length, memo, synced:false };
+  const session = {
+    id: Date.now(), date: new Date().toISOString(), cycle: currentCycle,
+    sets: savedSets, skipped: {...skipped},
+    ab: Object.keys(abDone).filter(k=>abDone[k]),
+    hop: hopDone.filter(Boolean).length, memo, synced: false
+  };
   sessions.push(session);
   saveLocal();
   document.getElementById('memoInput').value = '';
@@ -390,14 +385,35 @@ async function syncToSheets(session) {
   setSyncStatus('ing','送信中...');
   const rows = CYCLES[session.cycle].map(ex => {
     if (session.skipped?.[ex.id]) return { name:ex.name, muscle:ex.muscle, skipped:true };
-    const sets = session.sets[ex.id]||[];
-    const isD3 = ex.defaultSets.length >= 3;
-    const ki = isD3 && sets.length>=3 ? 1 : 0;
+    const sets = session.sets[ex.id] || [];
     const vol = sets.reduce((a,s) => a+(s.weight||0)*s.reps, 0);
-    return { name:ex.name, muscle:ex.muscle, skipped:false, sets:sets.map(s=>`${s.weight||'?'}kg×${s.reps}rep`).join(' / '), keyWeight:sets[ki]?.weight||null, volume:Math.round(vol) };
+    const setsStr = sets.map(s=>`${s.weight||'?'}kg×${s.reps}rep`).join(' / ');
+
+    if (ex.is2set) {
+      // 2セット種目：両方の重量を個別に送る
+      return {
+        name: ex.name, muscle: ex.muscle, skipped: false,
+        is2set: true,
+        set1weight: sets[0]?.weight ?? null,
+        set2weight: sets[1]?.weight ?? null,
+        sets: setsStr,
+        volume: Math.round(vol),
+      };
+    } else {
+      const ki = sets.length >= 3 ? 1 : 0;
+      return {
+        name: ex.name, muscle: ex.muscle, skipped: false,
+        is2set: false,
+        keyWeight: sets[ki]?.weight ?? null,
+        sets: setsStr,
+        volume: Math.round(vol),
+      };
+    }
   });
+
+  const payload = { date:session.date, cycle:session.cycle, rows, ab:session.ab, hop:session.hop, memo:session.memo };
   try {
-    await fetch(GAS_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ date:session.date, cycle:session.cycle, rows, ab:session.ab, hop:session.hop, memo:session.memo }) });
+    await fetch(GAS_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
     session.synced = true; saveLocal();
     setSyncStatus('ok','シート同期済み');
     showToast('保存 & スプレッドシートに送信しました！');
@@ -412,7 +428,6 @@ function setSyncStatus(s,t) {
   document.getElementById('syncDot').className='sync-dot '+s;
   document.getElementById('syncText').textContent=t;
 }
-
 function showToast(msg, isErr=false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -430,11 +445,16 @@ function renderHistory() {
       if (s.skipped?.[ex.id]) return `${ex.name} <span class="skip-tag">スキップ</span>`;
       const sets = s.sets?.[ex.id];
       if (!sets || sets.every(st=>st.weight==null)) return null;
-      const isD3 = ex.defaultSets.length >= 3;
-      const ki = isD3 && sets.length>=3 ? 1 : 0;
-      const kw = sets[ki]?.weight;
+      let keyStr = '';
+      if (ex.is2set) {
+        const w0 = sets[0]?.weight, w1 = sets[1]?.weight;
+        keyStr = [w0,w1].filter(v=>v!=null).join(' / ') + 'kg';
+      } else {
+        const ki = sets.length>=3 ? 1 : 0;
+        keyStr = (sets[ki]?.weight || '?') + 'kg';
+      }
       const detail = sets.map(st=>`${st.weight||'?'}×${st.reps}`).join(' / ');
-      return `${ex.name} <span class="hist-highlight">${kw||'?'}kg</span> <span style="font-size:10px;color:var(--text3)">(${detail})</span>`;
+      return `${ex.name} <span class="hist-highlight">${keyStr}</span> <span style="font-size:10px;color:var(--text3)">(${detail})</span>`;
     }).filter(Boolean).join('<br>');
     const prHtml = checkPR(s) ? '<span class="pr-badge">PR</span>' : '';
     const syncHtml = s.synced ? '<span class="sheets-badge">シート済</span>' : '';
@@ -453,14 +473,19 @@ function checkPR(session) {
   for (const ex of CYCLES[session.cycle]) {
     if (session.skipped?.[ex.id]) continue;
     const sets = session.sets?.[ex.id]; if (!sets) continue;
-    const isD3 = ex.defaultSets.length >= 3;
-    const ki = isD3 && sets.length>=3 ? 1 : 0;
-    const kw = sets[ki]?.weight; if (kw==null) continue;
-    const maxPrev = Math.max(0, ...sessions.filter(s=>s!==session&&s.cycle===session.cycle&&!s.skipped?.[ex.id]).map(s=>{
-      const ps=s.sets?.[ex.id]; if(!ps) return 0;
-      const pki=isD3&&ps.length>=3?1:0; return ps[pki]?.weight||0;
-    }));
-    if (kw > maxPrev) return true;
+    if (ex.is2set) {
+      const w0 = sets[0]?.weight; if (w0==null) continue;
+      const maxPrev = Math.max(0, ...sessions.filter(s=>s!==session&&s.cycle===session.cycle&&!s.skipped?.[ex.id]).map(s=>s.sets?.[ex.id]?.[0]?.weight||0));
+      if (w0 > maxPrev) return true;
+    } else {
+      const ki = sets.length>=3?1:0;
+      const kw = sets[ki]?.weight; if (kw==null) continue;
+      const maxPrev = Math.max(0, ...sessions.filter(s=>s!==session&&s.cycle===session.cycle&&!s.skipped?.[ex.id]).map(s=>{
+        const ps=s.sets?.[ex.id]; if(!ps) return 0;
+        return ps[ps.length>=3?1:0]?.weight||0;
+      }));
+      if (kw > maxPrev) return true;
+    }
   }
   return false;
 }
@@ -472,7 +497,14 @@ function renderGraph() {
 }
 
 function renderStats() {
-  const getMax = (id) => Math.max(0, ...sessions.map(s=>{ const sets=s.sets?.[id]; if(!sets) return 0; const ki=sets.length>=3?1:0; return sets[ki]?.weight||0; }));
+  const getMax = (id) => {
+    const ex = [...CYCLES.A,...CYCLES.B,...CYCLES.C].find(e=>e.id===id);
+    return Math.max(0, ...sessions.map(s=>{
+      const sets=s.sets?.[id]; if(!sets) return 0;
+      if (ex?.is2set) return sets[0]?.weight||0;
+      return sets[sets.length>=3?1:0]?.weight||0;
+    }));
+  };
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card"><div class="stat-label">総セッション</div><div class="stat-value">${sessions.length}<span class="stat-unit"> 回</span></div></div>
     <div class="stat-card"><div class="stat-label">DL MAX</div><div class="stat-value">${getMax('deadlift')||'--'}<span class="stat-unit"> kg</span></div></div>
@@ -491,13 +523,26 @@ function renderWeightChart() {
   const ex = allEx.find(e=>e.id===exId);
   const rel = sessions.filter(s=>!s.skipped?.[exId]&&s.sets?.[exId]?.some(st=>st.weight!=null));
   const labels = rel.map(s=>{ const d=new Date(s.date); return `${d.getMonth()+1}/${d.getDate()}`; });
-  const isD3 = ex.defaultSets.length >= 3;
-  const keyData = rel.map(s=>{ const sets=s.sets[exId]; const ki=isD3&&sets.length>=3?1:0; return sets[ki]?.weight||null; });
   const {grid,tick} = getChartColors();
   if (wChart) wChart.destroy();
+
+  let datasets;
+  if (ex.is2set) {
+    // 2セット種目は2本のラインを表示
+    datasets = [
+      { label:'1セット目', data:rel.map(s=>s.sets[exId]?.[0]?.weight||null), borderColor:'#1D9E75', backgroundColor:'transparent', borderWidth:2, pointRadius:3, tension:0.3 },
+      { label:'2セット目', data:rel.map(s=>s.sets[exId]?.[1]?.weight||null), borderColor:'#9FE1CB', backgroundColor:'transparent', borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[4,3] },
+    ];
+  } else {
+    datasets = [
+      { label:'キー重量(★5rep)', data:rel.map(s=>{ const sets=s.sets[exId]; const ki=sets.length>=3?1:0; return sets[ki]?.weight||null; }), borderColor:'#1D9E75', backgroundColor:'transparent', borderWidth:2.5, pointRadius:4, tension:0.3 },
+    ];
+  }
+
   wChart = new Chart(document.getElementById('weightChart'), {
-    type:'line', data:{ labels, datasets:[{ label:'キー重量', data:keyData, borderColor:'#1D9E75', backgroundColor:'transparent', borderWidth:2.5, pointRadius:4, tension:0.3 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:grid},ticks:{color:tick,font:{size:10}}}, y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v+'kg'}} } }
+    type:'line', data:{ labels, datasets },
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:ex.is2set}},
+      scales:{ x:{grid:{color:grid},ticks:{color:tick,font:{size:10}}}, y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v+'kg'}} } }
   });
 }
 
@@ -509,7 +554,8 @@ function renderVolumeChart() {
   if (vChart) vChart.destroy();
   vChart = new Chart(document.getElementById('volumeChart'), {
     type:'bar', data:{ labels, datasets:[{ label:'ボリューム', data:vols, backgroundColor:'#5DCAA5', borderRadius:4 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ x:{grid:{color:grid},ticks:{color:tick,font:{size:9},maxRotation:45,autoSkip:false}}, y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v.toLocaleString()+'kg'}} } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ x:{grid:{color:grid},ticks:{color:tick,font:{size:9},maxRotation:45,autoSkip:false}}, y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v.toLocaleString()+'kg'}} } }
   });
 }
 
