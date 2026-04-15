@@ -153,7 +153,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
       </div>
     </div>
     <div class="memo-wrap"><textarea class="memo-input" id="memoInput" placeholder="メモ（体調・気づきなど）"></textarea></div>
-    <button class="finish-btn" id="finishBtn" onclick="finishSession()">記録を保存してスプレッドシートに送信</button>
+    <button class="finish-btn" id="finishBtn" onclick="finishSession()">記録を保存する</button>
     <div class="toast" id="toast"></div>
     <div style="height:16px"></div>
   </div>
@@ -179,7 +179,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbzA0DnAzJ2cOibIil0pPJkUTWy5PmEQ3cdWgzfvDRrvlv415_cF_hRerlP89SpeeRHI3Q/exec';
+const SUPABASE_URL = 'https://qbtlaiizwlbiocnbpwcf.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFidGxhaWl6d2xiaW9jbmJwd2NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNDYxNjEsImV4cCI6MjA5MTgyMjE2MX0.q_OP7cnTmeHrKjCVJmHBwHg6uoRYftTismAN5niGQKc';
+const SB_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Prefer': 'return=minimal',
+};
 
 const CYCLES = {
   A: [
@@ -260,19 +267,51 @@ let skipped = {};
 let setData = {};
 let wChart = null, vChart = null;
 
-function loadData() {
+async function loadData() {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/sessions?select=*&order=date.asc', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.length > 0) {
+        sessions = data.map(r => ({
+          id: r.id, date: r.date, cycle: r.cycle,
+          sets: r.sets, skipped: r.skipped || {},
+          ab: r.ab || [], hop: r.hop || 0, memo: r.memo || '', synced: true
+        }));
+        saveLocal();
+        return;
+      }
+    }
+  } catch(e) {}
+  // Supabase失敗時はローカルにフォールバック
   try {
     const stored = localStorage.getItem('gym_v3');
-    if (stored) {
-      sessions = JSON.parse(stored);
-    } else {
-      // 初回起動：シードデータを投入
-      sessions = SEED_SESSIONS;
-      saveLocal();
-    }
-  } catch(e) { sessions = SEED_SESSIONS; saveLocal(); }
+    if (stored) { sessions = JSON.parse(stored); return; }
+  } catch(e) {}
+  // 初回：シードデータ投入
+  sessions = SEED_SESSIONS;
+  saveLocal();
+  await seedToSupabase();
 }
 function saveLocal() { localStorage.setItem('gym_v3', JSON.stringify(sessions)); }
+
+async function seedToSupabase() {
+  for (const s of SEED_SESSIONS) {
+    try {
+      await fetch(SUPABASE_URL + '/rest/v1/sessions', {
+        method: 'POST',
+        headers: SB_HEADERS,
+        body: JSON.stringify({
+          id: s.id, date: s.date, cycle: s.cycle,
+          sets: s.sets, skipped: s.skipped,
+          ab: s.ab, hop: s.hop, memo: s.memo
+        })
+      });
+    } catch(e) {}
+  }
+}
 
 function getLastSets(id) {
   const prev = [...sessions].reverse().find(s => s.cycle === currentCycle && s.sets?.[id]);
@@ -477,36 +516,37 @@ async function finishSession() {
   document.getElementById('memoInput').value = '';
   buildSetData();
   renderExercises();
-  await syncToSheets(session);
+  await syncToSupabase(session);
 }
 
-async function syncToSheets(session) {
+async function syncToSupabase(session) {
   document.getElementById('finishBtn').disabled = true;
-  setSyncStatus('ing','送信中...');
-  const rows = CYCLES[session.cycle].map(ex => {
-    if (session.skipped?.[ex.id]) return { name:ex.name, muscle:ex.muscle, skipped:true };
-    const sets = session.sets[ex.id] || [];
-    const vol = sets.reduce((a,s) => a+(s.weight||0)*s.reps, 0);
-    const setsStr = sets.map(s=>`${s.weight||'?'}kg×${s.reps}rep`).join(' / ');
-    if (ex.is2set) {
-      return { name:ex.name, muscle:ex.muscle, skipped:false, is2set:true,
-        set1weight: sets[0]?.weight ?? null, set2weight: sets[1]?.weight ?? null,
-        sets: setsStr, volume: Math.round(vol), exMemo: session.sets[ex.id]?.memo||'' };
-    } else {
-      const ki = sets.length >= 3 ? 1 : 0;
-      return { name:ex.name, muscle:ex.muscle, skipped:false, is2set:false,
-        keyWeight: sets[ki]?.weight ?? null, sets: setsStr, volume: Math.round(vol), exMemo: session.sets[ex.id]?.memo||'' };
-    }
-  });
-  const payload = { date:session.date, cycle:session.cycle, rows, ab:session.ab, hop:session.hop, memo:session.memo };
+  setSyncStatus('ing','保存中...');
   try {
-    await fetch(GAS_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
-    session.synced = true; saveLocal();
-    setSyncStatus('ok','シート同期済み');
-    showToast('保存 & スプレッドシートに送信しました！');
+    const res = await fetch(SUPABASE_URL + '/rest/v1/sessions', {
+      method: 'POST',
+      headers: SB_HEADERS,
+      body: JSON.stringify({
+        id: session.id,
+        date: session.date,
+        cycle: session.cycle,
+        sets: session.sets,
+        skipped: session.skipped,
+        ab: session.ab,
+        hop: session.hop,
+        memo: session.memo,
+      })
+    });
+    if (res.ok || res.status === 201) {
+      session.synced = true; saveLocal();
+      setSyncStatus('ok','DB保存済み');
+      showToast('保存しました！');
+    } else {
+      throw new Error('status ' + res.status);
+    }
   } catch(e) {
-    setSyncStatus('err','送信失敗');
-    showToast('ローカルに保存しました（通信エラー）', true);
+    setSyncStatus('err','保存失敗');
+    showToast('ローカルのみ保存しました', true);
   }
   document.getElementById('finishBtn').disabled = false;
 }
@@ -544,7 +584,7 @@ function renderHistory() {
       return `${ex.name} <span class="hist-highlight">${keyStr}</span> <span style="font-size:10px;color:var(--text3)">(${detail})</span>${exMemo}`;
     }).filter(Boolean).join('<br>');
     const prHtml=checkPR(s)?'<span class="pr-badge">PR</span>':'';
-    const syncHtml=s.synced?'<span class="sheets-badge">シート済</span>':'';
+    const syncHtml=s.synced?'<span class="sheets-badge">DB済</span>':'';
     return `<div class="history-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
         <div><div class="hist-date">${dateStr}${prHtml}${syncHtml}</div><div class="hist-cycle">全身${s.cycle}</div></div>
@@ -625,8 +665,8 @@ function switchTab(tab,el){
   if(tab==='graph')renderGraph();
 }
 
-function init() {
-  loadData();
+async function init() {
+  await loadData();
   const today=new Date();
   document.getElementById('headerDate').textContent=`${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()} (${['日','月','火','水','木','金','土'][today.getDay()]})`;
   // 最後のサイクルの次を自動選択
