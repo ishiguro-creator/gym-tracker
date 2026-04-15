@@ -54,7 +54,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .ex-name { font-size: 14px; font-weight: 600; color: var(--text); }
 .ex-muscle { font-size: 11px; color: var(--text2); margin-top: 2px; }
 .ex-header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
-.rec-badge { font-size: 11px; background: var(--green-light); color: var(--green-dark); border-radius: var(--radius); padding: 3px 8px; white-space: nowrap; font-weight: 500; }
+.auto-badge { font-size: 11px; background: #E6F1FB; color: #185FA5; border-radius: var(--radius); padding: 3px 8px; white-space: nowrap; font-weight: 500; }
 .skip-btn { font-size: 11px; color: var(--text2); background: var(--bg2); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 3px 8px; cursor: pointer; font-family: inherit; }
 .skip-btn.active { background: var(--red-light); color: var(--red); border-color: var(--red); }
 .sets-container { display: flex; flex-direction: column; gap: 6px; }
@@ -67,6 +67,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .set-input:focus { border-color: var(--green); background: var(--bg); }
 .set-input.key-input { border-color: rgba(226,75,74,0.35); }
 .set-input.key-input:focus { border-color: var(--red); }
+.set-input.auto-filled { background: #E6F1FB; border-color: rgba(24,95,165,0.3); }
+@media (prefers-color-scheme: dark) { .set-input.auto-filled { background: #0c2d4a; border-color: rgba(55,138,221,0.4); } }
 .set-input[type=number]::-webkit-inner-spin-button,
 .set-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 .del-btn { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text2); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; flex-shrink: 0; }
@@ -179,33 +181,76 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzA0DnAzJ2cOibIil0pPJkU
 
 const CYCLES = {
   A: [
-    { id:'deadlift',     name:'デッドリフト',                 muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'inc_db_press', name:'インクラインDB プレス',         muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false },
-    { id:'leg_press',    name:'レッグプレス',                  muscle:'脚',         defaultSets:[10,5,10], step:5.0,  is2set:false },
-    { id:'side_raise',   name:'サイドレイズ',                  muscle:'肩',         defaultSets:[15,10],   step:1.0,  is2set:true  },
-    { id:'cable_curl',   name:'ケーブルカール',                muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'pressdown',    name:'プレスダウン',                  muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'deadlift',     name:'デッドリフト',                muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'inc_db_press', name:'インクラインDB プレス',        muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false },
+    { id:'leg_press',    name:'レッグプレス',                 muscle:'脚',         defaultSets:[10,5,10], step:5.0,  is2set:false },
+    { id:'side_raise',   name:'サイドレイズ',                 muscle:'肩',         defaultSets:[15,10],   step:1.0,  is2set:true  },
+    { id:'cable_curl',   name:'ケーブルカール',               muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'pressdown',    name:'プレスダウン',                 muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
   ],
   B: [
-    { id:'squat',        name:'バックスクワット',              muscle:'脚',         defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'ohp',          name:'オーバーヘッドプレス',          muscle:'肩',         defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'chinup',       name:'チンニング',                    muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'inc_db_fly',   name:'インクラインDB フライ',         muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false },
-    { id:'bb_curl',      name:'バーベルカール',                muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'narrow_bench', name:'ナローベンチプレス',            muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'squat',        name:'バックスクワット',             muscle:'脚',         defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'ohp',          name:'オーバーヘッドプレス',         muscle:'肩',         defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'chinup',       name:'チンニング',                   muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'inc_db_fly',   name:'インクラインDB フライ',        muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false },
+    { id:'bb_curl',      name:'バーベルカール',               muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'narrow_bench', name:'ナローベンチプレス',           muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
   ],
   C: [
-    { id:'bench',        name:'ベンチプレス',                  muscle:'胸',         defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'bulgarian',    name:'ブルガリアンスクワット',        muscle:'脚',         defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'db_row',       name:'ダンベルロウ',                  muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'rear_delt',    name:'リアデルトフライ（マシン）',    muscle:'肩',         defaultSets:[15,10],   step:2.5,  is2set:true  },
-    { id:'inc_db_curl',  name:'インクラインDB カール',         muscle:'腕（二頭）', defaultSets:[10,5,10], step:1.0,  is2set:false },
-    { id:'tricep_ext',   name:'トライセプスエクステンション',  muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'bench',        name:'ベンチプレス',                 muscle:'胸',         defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'bulgarian',    name:'ブルガリアンスクワット',       muscle:'脚',         defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'db_row',       name:'ダンベルロウ',                 muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'rear_delt',    name:'リアデルトフライ（マシン）',   muscle:'肩',         defaultSets:[15,10],   step:2.5,  is2set:true  },
+    { id:'inc_db_curl',  name:'インクラインDB カール',        muscle:'腕（二頭）', defaultSets:[10,5,10], step:1.0,  is2set:false },
+    { id:'tricep_ext',   name:'トライセプスエクステンション', muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
   ],
 };
 
+// ── 過去データ初期値 ──────────────────────────────
+const SEED_SESSIONS = [
+  {
+    id: 1, date: '2026-04-07T10:00:00.000Z', cycle: 'B', synced: true,
+    ab: ['レッグレイズ'], hop: 2, memo: 'SQの余裕をバネへ変換。ロシアンツイストは今回パス。',
+    skipped: {},
+    sets: {
+      squat:        [{reps:10,weight:80},{reps:5,weight:105},{reps:12,weight:80}],
+      ohp:          [{reps:8,weight:45},{reps:5,weight:55},{reps:8,weight:45}],
+      chinup:       [{reps:10,weight:0},{reps:5,weight:0},{reps:null,weight:0}],
+      inc_db_fly:   [{reps:12,weight:24},{reps:12,weight:24}],
+      bb_curl:      [{reps:10,weight:30},{reps:10,weight:30}],
+      narrow_bench: [{reps:10,weight:70},{reps:10,weight:70}],
+    }
+  },
+  {
+    id: 2, date: '2026-04-09T10:00:00.000Z', cycle: 'C', synced: true,
+    ab: ['レッグレイズ'], hop: 2, memo: '',
+    skipped: {},
+    sets: {
+      bench:       [{reps:10,weight:85},{reps:5,weight:97.5},{reps:10,weight:85}],
+      bulgarian:   [{reps:10,weight:30},{reps:5,weight:34},{reps:10,weight:30}],
+      db_row:      [{reps:10,weight:50},{reps:8,weight:65},{reps:10,weight:50}],
+      rear_delt:   [{reps:10,weight:45},{reps:10,weight:55}],
+      inc_db_curl: [{reps:15,weight:14},{reps:10,weight:16}],
+      tricep_ext:  [{reps:15,weight:30},{reps:10,weight:35}],
+    }
+  },
+  {
+    id: 3, date: '2026-04-12T10:00:00.000Z', cycle: 'A', synced: true,
+    ab: ['レッグレイズ'], hop: 2, memo: '',
+    skipped: {},
+    sets: {
+      deadlift:     [{reps:10,weight:120},{reps:5,weight:145},{reps:8,weight:120}],
+      inc_db_press: [{reps:10,weight:28},{reps:10,weight:34},{reps:8,weight:34}],
+      leg_press:    [{reps:10,weight:130},{reps:5,weight:175},{reps:10,weight:130}],
+      side_raise:   [{reps:10,weight:5},{reps:10,weight:5}],
+      cable_curl:   [{reps:10,weight:21.5},{reps:10,weight:21.5}],
+      pressdown:    [{reps:10,weight:25},{reps:10,weight:25}],
+    }
+  },
+];
+
 const AB_MENU = ['レッグレイズ','ロシアンツイスト'];
-let currentCycle = 'A';
+let currentCycle = 'B'; // 最後がAなので次はB
 let sessions = [];
 let abDone = {};
 let hopDone = [false, false];
@@ -214,33 +259,39 @@ let setData = {};
 let wChart = null, vChart = null;
 
 function loadData() {
-  try { sessions = JSON.parse(localStorage.getItem('gym_v3') || '[]'); } catch(e) { sessions = []; }
+  try {
+    const stored = localStorage.getItem('gym_v3');
+    if (stored) {
+      sessions = JSON.parse(stored);
+    } else {
+      // 初回起動：シードデータを投入
+      sessions = SEED_SESSIONS;
+      saveLocal();
+    }
+  } catch(e) { sessions = SEED_SESSIONS; saveLocal(); }
 }
 function saveLocal() { localStorage.setItem('gym_v3', JSON.stringify(sessions)); }
 
-function getRecommended(ex) {
-  const prev = [...sessions].reverse().find(s => s.cycle===currentCycle && !s.skipped?.[ex.id] && s.sets?.[ex.id]);
-  if (!prev) return null;
-  const sets = prev.sets[ex.id];
+function getLastSets(id) {
+  const prev = [...sessions].reverse().find(s => s.cycle === currentCycle && s.sets?.[id]);
+  return prev?.sets?.[id] || null;
+}
+
+function calcNext(id) {
+  const ex = getAllEx().find(e => e.id === id);
+  const last = getLastSets(id);
+  if (!last) return null;
   if (ex.is2set) {
-    const w0 = sets[0]?.weight;
-    const w1 = sets[1]?.weight;
-    if (w0 == null && w1 == null) return null;
-    const next0 = w0 != null ? w0 + ex.step : null;
-    const next1 = w1 != null ? w1 + ex.step : null;
-    if (next0 != null && next1 != null) return `${next0} / ${next1}kg`;
-    return `${next0 || next1}kg`;
+    const w0 = last[0]?.weight, w1 = last[1]?.weight;
+    return { w0: w0 != null ? w0 + ex.step : null, w1: w1 != null ? w1 + ex.step : null };
   } else {
-    const ki = sets.length >= 3 ? 1 : 0;
-    const kw = sets[ki]?.weight;
-    return kw != null ? `${kw + ex.step}kg` : null;
+    const ki = last.length >= 3 ? 1 : 0;
+    const kw = last[ki]?.weight;
+    return kw != null ? kw + ex.step : null;
   }
 }
 
-function getLastSets(id) {
-  const prev = [...sessions].reverse().find(s => s.cycle===currentCycle && s.sets?.[id]);
-  return prev?.sets?.[id] || null;
-}
+function getAllEx() { return [...CYCLES.A, ...CYCLES.B, ...CYCLES.C]; }
 
 function setCycle(c) {
   currentCycle = c;
@@ -253,9 +304,20 @@ function buildSetData() {
   skipped = {}; setData = {};
   CYCLES[currentCycle].forEach(ex => {
     const last = getLastSets(ex.id);
-    setData[ex.id] = last
-      ? last.map(s => ({ reps: s.reps, weight: null }))
-      : ex.defaultSets.map(r => ({ reps: r, weight: null }));
+    const next = calcNext(ex.id);
+    if (!last) {
+      setData[ex.id] = ex.defaultSets.map(r => ({ reps: r, weight: null, autoFilled: false }));
+    } else if (ex.is2set) {
+      setData[ex.id] = last.map((s, i) => {
+        const w = i === 0 ? next?.w0 : next?.w1;
+        return { reps: s.reps, weight: w ?? null, autoFilled: w != null };
+      });
+    } else {
+      const nextW = next;
+      setData[ex.id] = last.map(s => ({
+        reps: s.reps, weight: nextW ?? null, autoFilled: nextW != null,
+      }));
+    }
   });
 }
 
@@ -271,14 +333,16 @@ function syncInputs(id) {
   setData[id].forEach((s, i) => {
     const w = parseFloat(document.getElementById('w_'+id+'_'+i)?.value);
     const r = parseInt(document.getElementById('r_'+id+'_'+i)?.value);
-    if (!isNaN(w)) s.weight = w; else s.weight = null;
+    s.weight = isNaN(w) ? null : w;
+    s.autoFilled = false;
     if (!isNaN(r)) s.reps = r;
   });
 }
 
 function addSet(id) {
   syncInputs(id);
-  setData[id].push({ reps: 10, weight: null });
+  const last = setData[id][setData[id].length - 1];
+  setData[id].push({ reps: 10, weight: last?.weight ?? null, autoFilled: last?.autoFilled ?? false });
   document.getElementById('sets_'+id).innerHTML = buildSetsHTML(CYCLES[currentCycle].find(e=>e.id===id));
 }
 
@@ -289,30 +353,29 @@ function removeSet(id, idx) {
   document.getElementById('sets_'+id).innerHTML = buildSetsHTML(CYCLES[currentCycle].find(e=>e.id===id));
 }
 
-function getPlaceholderW(id, idx) {
-  const last = getLastSets(id);
-  if (last && last[idx] && last[idx].weight != null) return String(last[idx].weight);
-  return '';
+function onWeightInput(id, i) {
+  document.getElementById('w_'+id+'_'+i).classList.remove('auto-filled');
+  if (setData[id]?.[i]) setData[id][i].autoFilled = false;
 }
 
 function buildSetsHTML(ex) {
   const sets = setData[ex.id];
   let html = '<div class="sets-container">';
   sets.forEach((s, i) => {
-    // 3セット以上ある種目の2番目(i===1)が★キー
     const isKey = !ex.is2set && sets.length >= 3 && i === 1;
-    const ph = getPlaceholderW(ex.id, i);
+    const autoClass = s.autoFilled ? ' auto-filled' : '';
+    const wVal = s.weight != null ? s.weight : '';
     html += `<div class="set-row">
       <div class="set-num ${isKey?'key':''}">${isKey ? '★' : (i+1)}</div>
       <div class="set-field">
         <label>kg</label>
-        <input class="set-input ${isKey?'key-input':''}" type="number" inputmode="decimal"
-          id="w_${ex.id}_${i}" value="${s.weight!=null?s.weight:''}" placeholder="${ph}" />
+        <input class="set-input ${isKey?'key-input':''}${autoClass}" type="number" inputmode="decimal"
+          id="w_${ex.id}_${i}" value="${wVal}" oninput="onWeightInput('${ex.id}',${i})" />
       </div>
       <div class="set-field">
         <label>rep</label>
         <input class="set-input" type="number" inputmode="numeric"
-          id="r_${ex.id}_${i}" value="${s.reps}" />
+          id="r_${ex.id}_${i}" value="${s.reps != null ? s.reps : ''}" />
       </div>
       <button class="del-btn" onclick="removeSet('${ex.id}',${i})">−</button>
     </div>`;
@@ -321,12 +384,21 @@ function buildSetsHTML(ex) {
   return html;
 }
 
+function getAutoBadgeText(ex) {
+  const next = calcNext(ex.id);
+  if (!next) return '初回';
+  if (ex.is2set) {
+    const parts = [next.w0, next.w1].filter(v=>v!=null);
+    return parts.length ? '自動: ' + parts.join(' / ') + 'kg' : '初回';
+  }
+  return next != null ? `自動: ${next}kg` : '初回';
+}
+
 function renderExercises() {
   const container = document.getElementById('exerciseList');
   container.innerHTML = '';
   CYCLES[currentCycle].forEach(ex => {
-    const rec = getRecommended(ex);
-    const recText = rec != null ? `目標: ${rec}` : '初回';
+    const badgeText = getAutoBadgeText(ex);
     const isSkip = skipped[ex.id] || false;
     const div = document.createElement('div');
     div.className = 'exercise-card' + (isSkip ? ' skipped' : '');
@@ -335,7 +407,7 @@ function renderExercises() {
       <div class="ex-header">
         <div><div class="ex-name">${ex.name}</div><div class="ex-muscle">${ex.muscle}</div></div>
         <div class="ex-header-right">
-          <div class="rec-badge">${recText}</div>
+          <div class="auto-badge">${badgeText}</div>
           <button class="skip-btn ${isSkip?'active':''}" id="skip_${ex.id}" onclick="toggleSkip('${ex.id}')">${isSkip?'スキップ中':'スキップ'}</button>
         </div>
       </div>
@@ -388,29 +460,16 @@ async function syncToSheets(session) {
     const sets = session.sets[ex.id] || [];
     const vol = sets.reduce((a,s) => a+(s.weight||0)*s.reps, 0);
     const setsStr = sets.map(s=>`${s.weight||'?'}kg×${s.reps}rep`).join(' / ');
-
     if (ex.is2set) {
-      // 2セット種目：両方の重量を個別に送る
-      return {
-        name: ex.name, muscle: ex.muscle, skipped: false,
-        is2set: true,
-        set1weight: sets[0]?.weight ?? null,
-        set2weight: sets[1]?.weight ?? null,
-        sets: setsStr,
-        volume: Math.round(vol),
-      };
+      return { name:ex.name, muscle:ex.muscle, skipped:false, is2set:true,
+        set1weight: sets[0]?.weight ?? null, set2weight: sets[1]?.weight ?? null,
+        sets: setsStr, volume: Math.round(vol) };
     } else {
       const ki = sets.length >= 3 ? 1 : 0;
-      return {
-        name: ex.name, muscle: ex.muscle, skipped: false,
-        is2set: false,
-        keyWeight: sets[ki]?.weight ?? null,
-        sets: setsStr,
-        volume: Math.round(vol),
-      };
+      return { name:ex.name, muscle:ex.muscle, skipped:false, is2set:false,
+        keyWeight: sets[ki]?.weight ?? null, sets: setsStr, volume: Math.round(vol) };
     }
   });
-
   const payload = { date:session.date, cycle:session.cycle, rows, ab:session.ab, hop:session.hop, memo:session.memo };
   try {
     await fetch(GAS_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
@@ -430,8 +489,7 @@ function setSyncStatus(s,t) {
 }
 function showToast(msg, isErr=false) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (isErr?' err':'');
+  t.textContent = msg; t.className = 'toast show'+(isErr?' err':'');
   setTimeout(()=>t.className='toast'+(isErr?' err':''), 2600);
 }
 
@@ -447,17 +505,17 @@ function renderHistory() {
       if (!sets || sets.every(st=>st.weight==null)) return null;
       let keyStr = '';
       if (ex.is2set) {
-        const w0 = sets[0]?.weight, w1 = sets[1]?.weight;
-        keyStr = [w0,w1].filter(v=>v!=null).join(' / ') + 'kg';
+        const w0=sets[0]?.weight, w1=sets[1]?.weight;
+        keyStr = [w0,w1].filter(v=>v!=null).join(' / ')+'kg';
       } else {
-        const ki = sets.length>=3 ? 1 : 0;
-        keyStr = (sets[ki]?.weight || '?') + 'kg';
+        const ki=sets.length>=3?1:0;
+        keyStr=(sets[ki]?.weight||'?')+'kg';
       }
-      const detail = sets.map(st=>`${st.weight||'?'}×${st.reps}`).join(' / ');
+      const detail=sets.map(st=>`${st.weight||'?'}×${st.reps}`).join(' / ');
       return `${ex.name} <span class="hist-highlight">${keyStr}</span> <span style="font-size:10px;color:var(--text3)">(${detail})</span>`;
     }).filter(Boolean).join('<br>');
-    const prHtml = checkPR(s) ? '<span class="pr-badge">PR</span>' : '';
-    const syncHtml = s.synced ? '<span class="sheets-badge">シート済</span>' : '';
+    const prHtml=checkPR(s)?'<span class="pr-badge">PR</span>':'';
+    const syncHtml=s.synced?'<span class="sheets-badge">シート済</span>':'';
     return `<div class="history-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
         <div><div class="hist-date">${dateStr}${prHtml}${syncHtml}</div><div class="hist-cycle">全身${s.cycle}</div></div>
@@ -472,115 +530,82 @@ function renderHistory() {
 function checkPR(session) {
   for (const ex of CYCLES[session.cycle]) {
     if (session.skipped?.[ex.id]) continue;
-    const sets = session.sets?.[ex.id]; if (!sets) continue;
+    const sets=session.sets?.[ex.id]; if(!sets) continue;
     if (ex.is2set) {
-      const w0 = sets[0]?.weight; if (w0==null) continue;
-      const maxPrev = Math.max(0, ...sessions.filter(s=>s!==session&&s.cycle===session.cycle&&!s.skipped?.[ex.id]).map(s=>s.sets?.[ex.id]?.[0]?.weight||0));
-      if (w0 > maxPrev) return true;
+      const w0=sets[0]?.weight; if(w0==null) continue;
+      const maxPrev=Math.max(0,...sessions.filter(s=>s!==session&&s.cycle===session.cycle&&!s.skipped?.[ex.id]).map(s=>s.sets?.[ex.id]?.[0]?.weight||0));
+      if(w0>maxPrev) return true;
     } else {
-      const ki = sets.length>=3?1:0;
-      const kw = sets[ki]?.weight; if (kw==null) continue;
-      const maxPrev = Math.max(0, ...sessions.filter(s=>s!==session&&s.cycle===session.cycle&&!s.skipped?.[ex.id]).map(s=>{
-        const ps=s.sets?.[ex.id]; if(!ps) return 0;
-        return ps[ps.length>=3?1:0]?.weight||0;
-      }));
-      if (kw > maxPrev) return true;
+      const ki=sets.length>=3?1:0; const kw=sets[ki]?.weight; if(kw==null) continue;
+      const maxPrev=Math.max(0,...sessions.filter(s=>s!==session&&s.cycle===session.cycle&&!s.skipped?.[ex.id]).map(s=>{const ps=s.sets?.[ex.id];if(!ps)return 0;return ps[ps.length>=3?1:0]?.weight||0;}));
+      if(kw>maxPrev) return true;
     }
   }
   return false;
 }
 
 function renderGraph() {
-  const allEx = [...CYCLES.A,...CYCLES.B,...CYCLES.C];
-  document.getElementById('exerciseSelect').innerHTML = allEx.map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
+  document.getElementById('exerciseSelect').innerHTML = getAllEx().map(e=>`<option value="${e.id}">${e.name}</option>`).join('');
   renderWeightChart(); renderVolumeChart(); renderStats();
 }
 
 function renderStats() {
-  const getMax = (id) => {
-    const ex = [...CYCLES.A,...CYCLES.B,...CYCLES.C].find(e=>e.id===id);
-    return Math.max(0, ...sessions.map(s=>{
-      const sets=s.sets?.[id]; if(!sets) return 0;
-      if (ex?.is2set) return sets[0]?.weight||0;
-      return sets[sets.length>=3?1:0]?.weight||0;
-    }));
-  };
-  document.getElementById('statsGrid').innerHTML = `
+  const getMax=(id)=>{const ex=getAllEx().find(e=>e.id===id);return Math.max(0,...sessions.map(s=>{const sets=s.sets?.[id];if(!sets)return 0;if(ex?.is2set)return sets[0]?.weight||0;return sets[sets.length>=3?1:0]?.weight||0;}));};
+  document.getElementById('statsGrid').innerHTML=`
     <div class="stat-card"><div class="stat-label">総セッション</div><div class="stat-value">${sessions.length}<span class="stat-unit"> 回</span></div></div>
     <div class="stat-card"><div class="stat-label">DL MAX</div><div class="stat-value">${getMax('deadlift')||'--'}<span class="stat-unit"> kg</span></div></div>
     <div class="stat-card"><div class="stat-label">BP MAX</div><div class="stat-value">${getMax('bench')||'--'}<span class="stat-unit"> kg</span></div></div>
     <div class="stat-card"><div class="stat-label">SQ MAX</div><div class="stat-value">${getMax('squat')||'--'}<span class="stat-unit"> kg</span></div></div>`;
 }
 
-function getChartColors() {
-  const dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
-  return { grid: dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)', tick: dark?'#636366':'#9ca3af' };
-}
+function getChartColors(){const dark=window.matchMedia('(prefers-color-scheme:dark)').matches;return{grid:dark?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.06)',tick:dark?'#636366':'#9ca3af'};}
 
 function renderWeightChart() {
-  const exId = document.getElementById('exerciseSelect').value;
-  const allEx = [...CYCLES.A,...CYCLES.B,...CYCLES.C];
-  const ex = allEx.find(e=>e.id===exId);
-  const rel = sessions.filter(s=>!s.skipped?.[exId]&&s.sets?.[exId]?.some(st=>st.weight!=null));
-  const labels = rel.map(s=>{ const d=new Date(s.date); return `${d.getMonth()+1}/${d.getDate()}`; });
-  const {grid,tick} = getChartColors();
-  if (wChart) wChart.destroy();
-
+  const exId=document.getElementById('exerciseSelect').value;
+  const ex=getAllEx().find(e=>e.id===exId);
+  const rel=sessions.filter(s=>!s.skipped?.[exId]&&s.sets?.[exId]?.some(st=>st.weight!=null));
+  const labels=rel.map(s=>{const d=new Date(s.date);return`${d.getMonth()+1}/${d.getDate()}`;});
+  const {grid,tick}=getChartColors();
+  if(wChart)wChart.destroy();
   let datasets;
-  if (ex.is2set) {
-    // 2セット種目は2本のラインを表示
-    datasets = [
-      { label:'1セット目', data:rel.map(s=>s.sets[exId]?.[0]?.weight||null), borderColor:'#1D9E75', backgroundColor:'transparent', borderWidth:2, pointRadius:3, tension:0.3 },
-      { label:'2セット目', data:rel.map(s=>s.sets[exId]?.[1]?.weight||null), borderColor:'#9FE1CB', backgroundColor:'transparent', borderWidth:1.5, pointRadius:3, tension:0.3, borderDash:[4,3] },
+  if(ex.is2set){
+    datasets=[
+      {label:'1セット目',data:rel.map(s=>s.sets[exId]?.[0]?.weight||null),borderColor:'#1D9E75',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:0.3},
+      {label:'2セット目',data:rel.map(s=>s.sets[exId]?.[1]?.weight||null),borderColor:'#9FE1CB',backgroundColor:'transparent',borderWidth:1.5,pointRadius:3,tension:0.3,borderDash:[4,3]},
     ];
   } else {
-    datasets = [
-      { label:'キー重量(★5rep)', data:rel.map(s=>{ const sets=s.sets[exId]; const ki=sets.length>=3?1:0; return sets[ki]?.weight||null; }), borderColor:'#1D9E75', backgroundColor:'transparent', borderWidth:2.5, pointRadius:4, tension:0.3 },
-    ];
+    datasets=[{label:'キー重量(★)',data:rel.map(s=>{const sets=s.sets[exId];const ki=sets.length>=3?1:0;return sets[ki]?.weight||null;}),borderColor:'#1D9E75',backgroundColor:'transparent',borderWidth:2.5,pointRadius:4,tension:0.3}];
   }
-
-  wChart = new Chart(document.getElementById('weightChart'), {
-    type:'line', data:{ labels, datasets },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:ex.is2set}},
-      scales:{ x:{grid:{color:grid},ticks:{color:tick,font:{size:10}}}, y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v+'kg'}} } }
-  });
+  wChart=new Chart(document.getElementById('weightChart'),{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:ex.is2set}},scales:{x:{grid:{color:grid},ticks:{color:tick,font:{size:10}}},y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v+'kg'}}}}});
 }
 
 function renderVolumeChart() {
-  const last12 = sessions.slice(-12);
-  const labels = last12.map(s=>{ const d=new Date(s.date); return `${d.getMonth()+1}/${d.getDate()}(${s.cycle})`; });
-  const vols = last12.map(s=>{ let v=0; CYCLES[s.cycle].forEach(ex=>{ if(s.skipped?.[ex.id]) return; (s.sets?.[ex.id]||[]).forEach(st=>{ if(st.weight) v+=st.weight*st.reps; }); }); return Math.round(v); });
-  const {grid,tick} = getChartColors();
-  if (vChart) vChart.destroy();
-  vChart = new Chart(document.getElementById('volumeChart'), {
-    type:'bar', data:{ labels, datasets:[{ label:'ボリューム', data:vols, backgroundColor:'#5DCAA5', borderRadius:4 }] },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{ x:{grid:{color:grid},ticks:{color:tick,font:{size:9},maxRotation:45,autoSkip:false}}, y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v.toLocaleString()+'kg'}} } }
-  });
+  const last12=sessions.slice(-12);
+  const labels=last12.map(s=>{const d=new Date(s.date);return`${d.getMonth()+1}/${d.getDate()}(${s.cycle})`;});
+  const vols=last12.map(s=>{let v=0;CYCLES[s.cycle].forEach(ex=>{if(s.skipped?.[ex.id])return;(s.sets?.[ex.id]||[]).forEach(st=>{if(st.weight)v+=st.weight*st.reps;});});return Math.round(v);});
+  const {grid,tick}=getChartColors();
+  if(vChart)vChart.destroy();
+  vChart=new Chart(document.getElementById('volumeChart'),{type:'bar',data:{labels,datasets:[{label:'ボリューム',data:vols,backgroundColor:'#5DCAA5',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:grid},ticks:{color:tick,font:{size:9},maxRotation:45,autoSkip:false}},y:{grid:{color:grid},ticks:{color:tick,font:{size:10},callback:v=>v.toLocaleString()+'kg'}}}}});
 }
 
-function switchTab(tab, el) {
+function switchTab(tab,el){
   document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  ['record','history','graph'].forEach(s=>{
-    document.getElementById('screen'+s.charAt(0).toUpperCase()+s.slice(1)).classList.toggle('active',s===tab);
-  });
-  if (tab==='history') renderHistory();
-  if (tab==='graph') renderGraph();
+  ['record','history','graph'].forEach(s=>{document.getElementById('screen'+s.charAt(0).toUpperCase()+s.slice(1)).classList.toggle('active',s===tab);});
+  if(tab==='history')renderHistory();
+  if(tab==='graph')renderGraph();
 }
 
 function init() {
   loadData();
-  const today = new Date();
-  document.getElementById('headerDate').textContent = `${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()} (${['日','月','火','水','木','金','土'][today.getDay()]})`;
-  const last = sessions[sessions.length-1];
-  if (last) {
-    const nm={A:'B',B:'C',C:'A'}; currentCycle=nm[last.cycle]||'A';
-    document.querySelectorAll('.cycle-btn').forEach((b,i)=>b.classList.toggle('active',['A','B','C'][i]===currentCycle));
-  }
-  buildSetData(); renderExercises();
-  const synced = sessions.filter(s=>s.synced).length;
-  if (synced > 0) setSyncStatus('ok', `${synced}件同期済み`);
+  const today=new Date();
+  document.getElementById('headerDate').textContent=`${today.getFullYear()}/${today.getMonth()+1}/${today.getDate()} (${['日','月','火','水','木','金','土'][today.getDay()]})`;
+  // 最後のサイクルの次を自動選択
+  const last=sessions[sessions.length-1];
+  if(last){const nm={A:'B',B:'C',C:'A'};currentCycle=nm[last.cycle]||'B';document.querySelectorAll('.cycle-btn').forEach((b,i)=>b.classList.toggle('active',['A','B','C'][i]===currentCycle));}
+  buildSetData();renderExercises();
+  const synced=sessions.filter(s=>s.synced).length;
+  if(synced>0)setSyncStatus('ok',`${synced}件同期済み`);
 }
 
 init();
