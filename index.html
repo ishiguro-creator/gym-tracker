@@ -181,28 +181,28 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbzA0DnAzJ2cOibIil0pPJkU
 
 const CYCLES = {
   A: [
-    { id:'deadlift',     name:'デッドリフト',                muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'inc_db_press', name:'インクラインDB プレス',        muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false },
-    { id:'leg_press',    name:'レッグプレス',                 muscle:'脚',         defaultSets:[10,5,10], step:5.0,  is2set:false },
-    { id:'side_raise',   name:'サイドレイズ',                 muscle:'肩',         defaultSets:[15,10],   step:1.0,  is2set:true  },
-    { id:'cable_curl',   name:'ケーブルカール',               muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'pressdown',    name:'プレスダウン',                 muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'deadlift',     name:'デッドリフト',                muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false }, // バーベル
+    { id:'inc_db_press', name:'インクラインDB プレス',        muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false }, // ダンベル
+    { id:'leg_press',    name:'レッグプレス',                 muscle:'脚',         defaultSets:[10,5,10], step:5.0,  is2set:false }, // マシン
+    { id:'side_raise',   name:'サイドレイズ',                 muscle:'肩',         defaultSets:[15,10],   step:2.0,  is2set:true  }, // ダンベル
+    { id:'cable_curl',   name:'ケーブルカール',               muscle:'腕（二頭）', defaultSets:[10,5,10], step:5.0,  is2set:false }, // ケーブル
+    { id:'pressdown',    name:'プレスダウン',                 muscle:'腕（三頭）', defaultSets:[10,5,10], step:5.0,  is2set:false }, // ケーブル
   ],
   B: [
-    { id:'squat',        name:'バックスクワット',             muscle:'脚',         defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'ohp',          name:'オーバーヘッドプレス',         muscle:'肩',         defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'chinup',       name:'チンニング',                   muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'inc_db_fly',   name:'インクラインDB フライ',        muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false },
-    { id:'bb_curl',      name:'バーベルカール',               muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'narrow_bench', name:'ナローベンチプレス',           muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'squat',        name:'バックスクワット',             muscle:'脚',         defaultSets:[10,5,10], step:2.5,  is2set:false }, // バーベル
+    { id:'ohp',          name:'オーバーヘッドプレス',         muscle:'肩',         defaultSets:[10,5,10], step:2.5,  is2set:false }, // バーベル
+    { id:'chinup',       name:'チンニング',                   muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false }, // 自重
+    { id:'inc_db_fly',   name:'インクラインDB フライ',        muscle:'胸',         defaultSets:[10,5,10], step:2.0,  is2set:false }, // ダンベル
+    { id:'bb_curl',      name:'バーベルカール',               muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.5,  is2set:false }, // バーベル
+    { id:'narrow_bench', name:'ナローベンチプレス',           muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false }, // バーベル
   ],
   C: [
-    { id:'bench',        name:'ベンチプレス',                 muscle:'胸',         defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'bulgarian',    name:'ブルガリアンスクワット',       muscle:'脚',         defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'db_row',       name:'ダンベルロウ',                 muscle:'背中',       defaultSets:[10,5,10], step:2.5,  is2set:false },
-    { id:'rear_delt',    name:'リアデルトフライ（マシン）',   muscle:'肩',         defaultSets:[15,10],   step:2.5,  is2set:true  },
-    { id:'inc_db_curl',  name:'インクラインDB カール',        muscle:'腕（二頭）', defaultSets:[10,5,10], step:1.0,  is2set:false },
-    { id:'tricep_ext',   name:'トライセプスエクステンション', muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false },
+    { id:'bench',        name:'ベンチプレス',                 muscle:'胸',         defaultSets:[10,5,10], step:2.5,  is2set:false }, // バーベル
+    { id:'bulgarian',    name:'ブルガリアンスクワット',       muscle:'脚',         defaultSets:[10,5,10], step:2.0,  is2set:false }, // ダンベル
+    { id:'db_row',       name:'ダンベルロウ',                 muscle:'背中',       defaultSets:[10,5,10], step:2.0,  is2set:false }, // ダンベル
+    { id:'rear_delt',    name:'リアデルトフライ（マシン）',   muscle:'肩',         defaultSets:[15,10],   step:5.0,  is2set:true  }, // マシン(ケーブル)
+    { id:'inc_db_curl',  name:'インクラインDB カール',        muscle:'腕（二頭）', defaultSets:[10,5,10], step:2.0,  is2set:false }, // ダンベル
+    { id:'tricep_ext',   name:'トライセプスエクステンション', muscle:'腕（三頭）', defaultSets:[10,5,10], step:2.5,  is2set:false }, // バーベル
   ],
 };
 
@@ -313,10 +313,20 @@ function buildSetData() {
         return { reps: s.reps, weight: w ?? null, autoFilled: w != null };
       });
     } else {
-      const nextW = next;
-      setData[ex.id] = last.map(s => ({
-        reps: s.reps, weight: nextW ?? null, autoFilled: nextW != null,
-      }));
+      const nextW = next; // キー重量（★5rep）
+      setData[ex.id] = last.map((s, i) => {
+        // 3セット種目：中央(i===1)がキー重量、前後は80%
+        const is3set = last.length >= 3;
+        let w = null;
+        if (nextW != null) {
+          if (is3set) {
+            w = i === 1 ? nextW : Math.round(nextW * 0.8 * 2) / 2; // 0.5kg単位で丸める
+          } else {
+            w = nextW;
+          }
+        }
+        return { reps: s.reps, weight: w, autoFilled: w != null };
+      });
     }
   });
 }
