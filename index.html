@@ -73,6 +73,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', sans-ser
 .set-input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
 .del-btn { width: 28px; height: 28px; border-radius: 50%; border: 0.5px solid var(--border2); background: var(--bg2); color: var(--text2); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; font-family: inherit; flex-shrink: 0; }
 .add-set-btn { margin-top: 6px; width: 100%; padding: 8px; border: 0.5px dashed var(--border2); border-radius: var(--radius); background: none; color: var(--text2); font-size: 12px; cursor: pointer; font-family: inherit; }
+.ex-memo { width: 100%; margin-top: 8px; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 7px 10px; font-size: 12px; color: var(--text2); background: var(--bg2); resize: none; height: 44px; font-family: inherit; }
+.ex-memo:focus { outline: none; border-color: var(--border2); background: var(--bg); color: var(--text); }
 .ab-section { background: var(--bg); border-radius: var(--radius-lg); padding: 10px 14px; border: 0.5px solid var(--border); }
 .ab-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 0.5px solid var(--border); }
 .ab-row:last-child { border-bottom: none; }
@@ -277,6 +279,11 @@ function getLastSets(id) {
   return prev?.sets?.[id] || null;
 }
 
+function getLastMemo(id) {
+  const prev = [...sessions].reverse().find(s => s.cycle === currentCycle && s.sets?.[id]?.memo);
+  return prev?.sets?.[id]?.memo || null;
+}
+
 function calcNext(id) {
   const ex = getAllEx().find(e => e.id === id);
   const last = getLastSets(id);
@@ -307,11 +314,13 @@ function buildSetData() {
     const next = calcNext(ex.id);
     if (!last) {
       setData[ex.id] = ex.defaultSets.map(r => ({ reps: r, weight: null, autoFilled: false }));
+      setData[ex.id].memo = '';
     } else if (ex.is2set) {
       setData[ex.id] = last.map((s, i) => {
         const w = i === 0 ? next?.w0 : next?.w1;
         return { reps: s.reps, weight: w ?? null, autoFilled: w != null };
       });
+      setData[ex.id].memo = '';
     } else {
       const nextW = next; // キー重量（★5rep）
       setData[ex.id] = last.map((s, i) => {
@@ -320,13 +329,15 @@ function buildSetData() {
         let w = null;
         if (nextW != null) {
           if (is3set) {
-            w = i === 1 ? nextW : Math.round(nextW * 0.8 * 2) / 2; // 0.5kg単位で丸める
+            // 前後セットは80%をstep刻みで丸める
+            w = i === 1 ? nextW : Math.round(nextW * 0.8 / ex.step) * ex.step;
           } else {
             w = nextW;
           }
         }
         return { reps: s.reps, weight: w, autoFilled: w != null };
       });
+      setData[ex.id].memo = '';
     }
   });
 }
@@ -347,6 +358,8 @@ function syncInputs(id) {
     s.autoFilled = false;
     if (!isNaN(r)) s.reps = r;
   });
+  const memoEl = document.getElementById('memo_'+id);
+  if (memoEl) setData[id].memo = memoEl.value;
 }
 
 function addSet(id) {
@@ -391,6 +404,10 @@ function buildSetsHTML(ex) {
     </div>`;
   });
   html += `</div><button class="add-set-btn" onclick="addSet('${ex.id}')">＋ セットを追加</button>`;
+  const memoVal = setData[ex.id].memo || '';
+  const lastMemo = getLastMemo(ex.id);
+  const memoPlaceholder = lastMemo ? `前回: ${lastMemo}` : '種目メモ（フォーム・気づきなど）';
+  html += `<textarea class="ex-memo" id="memo_${ex.id}" placeholder="${memoPlaceholder}">${memoVal}</textarea>`;
   return html;
 }
 
@@ -445,6 +462,7 @@ async function finishSession() {
     syncInputs(ex.id);
     if (setData[ex.id].some(s => s.weight != null)) hasAny = true;
     savedSets[ex.id] = setData[ex.id].map(s => ({ reps: s.reps, weight: s.weight }));
+    savedSets[ex.id].memo = setData[ex.id].memo || '';
   });
   if (!hasAny) { showToast('重量を1つ以上入力してください', true); return; }
   const memo = document.getElementById('memoInput').value;
@@ -473,11 +491,11 @@ async function syncToSheets(session) {
     if (ex.is2set) {
       return { name:ex.name, muscle:ex.muscle, skipped:false, is2set:true,
         set1weight: sets[0]?.weight ?? null, set2weight: sets[1]?.weight ?? null,
-        sets: setsStr, volume: Math.round(vol) };
+        sets: setsStr, volume: Math.round(vol), exMemo: session.sets[ex.id]?.memo||'' };
     } else {
       const ki = sets.length >= 3 ? 1 : 0;
       return { name:ex.name, muscle:ex.muscle, skipped:false, is2set:false,
-        keyWeight: sets[ki]?.weight ?? null, sets: setsStr, volume: Math.round(vol) };
+        keyWeight: sets[ki]?.weight ?? null, sets: setsStr, volume: Math.round(vol), exMemo: session.sets[ex.id]?.memo||'' };
     }
   });
   const payload = { date:session.date, cycle:session.cycle, rows, ab:session.ab, hop:session.hop, memo:session.memo };
@@ -522,7 +540,8 @@ function renderHistory() {
         keyStr=(sets[ki]?.weight||'?')+'kg';
       }
       const detail=sets.map(st=>`${st.weight||'?'}×${st.reps}`).join(' / ');
-      return `${ex.name} <span class="hist-highlight">${keyStr}</span> <span style="font-size:10px;color:var(--text3)">(${detail})</span>`;
+      const exMemo = sets.memo ? ` <span style="font-size:10px;color:var(--text2);font-style:italic">"${sets.memo}"</span>` : '';
+      return `${ex.name} <span class="hist-highlight">${keyStr}</span> <span style="font-size:10px;color:var(--text3)">(${detail})</span>${exMemo}`;
     }).filter(Boolean).join('<br>');
     const prHtml=checkPR(s)?'<span class="pr-badge">PR</span>':'';
     const syncHtml=s.synced?'<span class="sheets-badge">シート済</span>':'';
